@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>턴태그 술래잡기</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
+:root{
+  --bg:#0a0b12;--card:#13152050;--card2:#1a1d2a;--bdr:#2c3047;
+  --tx:#e8ecff;--mu:#5a5e7a;
+  --H:#ff5a36;--R0:#22aaff;--R1:#44cc77;--R2:#ff9922;
+  --gold:#ffcc00;--gold2:#7a5c00;
+  --stay:#e84393;--go:#44cc77;--back:#ff8c22;--jump:#4488ff;
+  --hunter:#ff5a36;--runner:#44cc77;--bonus:#ffd84d;
+  --sab:env(safe-area-inset-bottom,0px);
+  --sat:env(safe-area-inset-top,0px);
+}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:'DotGothic16','Courier New',monospace;
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;overflow-x:hidden;
+  padding:max(4px,var(--sat)) 8px calc(max(8px,var(--sab)) + 58px);
+}
+.screen{display:none;width:100%;max-width:430px;flex-direction:column;align-items:center;gap:7px;flex:1}
+.screen.on{display:flex}
+
+/* ── TOP BAR ── */
+.topbar{width:100%;display:flex;align-items:center;gap:8px}
+.homebtn{background:var(--card2);border:1px solid var(--bdr);border-radius:8px;
+  font-size:17px;width:36px;height:36px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.homebtn:active{background:#2a2e40}
+.topbar-ttl{font-size:clamp(14px,4vw,18px);color:var(--gold);letter-spacing:2px;text-shadow:2px 2px 0 var(--gold2)}
+.topbar-sub{font-size:10px;color:var(--mu);margin-left:auto;white-space:nowrap}
+
+/* ── GAME TITLE (big pixel) ── */
+.game-big-title{
+  font-size:clamp(22px,7vw,32px);color:var(--gold);
+  text-align:center;letter-spacing:3px;line-height:1.1;
+  text-shadow:3px 3px 0 var(--gold2), 0 0 30px rgba(255,200,0,.35);
+}
+
+/* ── PANELS / BUTTONS ── */
+.pnl{width:100%;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px}
+.plbl{font-size:clamp(10px,2.8vw,12px);color:var(--mu);letter-spacing:2px;margin-bottom:9px;text-transform:uppercase}
+.bg{display:flex;gap:7px;flex-wrap:wrap}
+.b{font-family:'DotGothic16','Courier New',monospace;font-size:clamp(12px,3.5vw,14px);
+  padding:9px 12px;background:transparent;border:2px solid var(--bdr);color:var(--mu);
+  border-radius:6px;cursor:pointer;transition:all .12s;flex:1;min-width:55px;min-height:42px}
+.b:active{transform:scale(.96)}
+.b.on{border-color:var(--gold);color:var(--gold);background:rgba(255,204,0,.09)}
+.bstart{width:100%;padding:14px;font-family:'DotGothic16','Courier New',monospace;
+  font-size:clamp(15px,4.5vw,19px);letter-spacing:3px;background:var(--gold);color:#000;
+  border:none;border-radius:8px;cursor:pointer;box-shadow:0 5px 0 var(--gold2);min-height:52px}
+.bstart:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gold2)}
+.hint{font-size:clamp(10px,2.8vw,12px);color:var(--mu);text-align:center;line-height:2.1;
+  background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:11px 14px;width:100%}
+
+/* ── HUD TOP ── */
+.hud-top{width:100%;display:flex;flex-direction:column;gap:5px}
+.tbar{width:100%;display:flex;align-items:center;gap:8px}
+.tnum{font-size:clamp(22px,6vw,28px);color:var(--gold);white-space:nowrap;line-height:1;
+  text-shadow:2px 2px 0 var(--gold2)}
+.ttot{font-size:clamp(11px,3vw,13px);color:var(--mu);white-space:nowrap}
+.prog{flex:1;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,#44cc77,var(--gold));border-radius:3px;transition:width .5s}
+.alivecnt{font-size:clamp(12px,3.2vw,14px);color:var(--mu);white-space:nowrap}
+
+/* ── OTHERS STRIP (tiny cards) ── */
+.others-row{width:100%;display:grid;gap:5px}
+.oc{padding:5px 6px;border-radius:7px;border:2px solid;text-align:center;transition:box-shadow .25s}
+.oc.glow{animation:ocg .65s ease-in-out infinite alternate}
+@keyframes ocg{from{box-shadow:none}to{box-shadow:0 0 14px currentColor}}
+.oc-ico{font-size:clamp(20px,5.5vw,26px);display:block;line-height:1.15}
+.oc-nm{font-size:clamp(9px,2.5vw,11px);margin:1px 0}
+.oc-role{font-size:clamp(8px,2.2vw,10px);color:var(--mu)}
+.oc-pos{font-size:clamp(9px,2.4vw,11px)}
+.oc-bet{font-size:clamp(8px,2.2vw,10px);color:var(--gold);margin-top:1px}
+.oc.dead{opacity:.28;filter:grayscale(.85)}
+.hunter-badge{display:inline-flex;align-items:center;padding:1px 5px;border-radius:999px;
+  background:rgba(255,68,34,.14);border:1px solid rgba(255,68,34,.5);color:#ff9977;font-size:8px;letter-spacing:.5px;vertical-align:middle;margin-left:3px}
+
+/* ══════════════════════════════════════
+   COSMIC ARENA
+══════════════════════════════════════ */
+.arena-shell{width:100%;display:flex;justify-content:center;padding:0 0 4px}
+.arena{
+  position:relative;
+  width:min(320px,88vw);height:min(320px,88vw);
+  flex-shrink:0;border-radius:50%;overflow:visible;
+}
+
+/* Space BG */
+.a-bg{
+  position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 35%, rgba(80,20,120,.55) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 55% at 70% 65%, rgba(20,50,120,.5) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, #0e1030 0%, #07080f 100%);
+  box-shadow:inset 0 0 60px rgba(80,40,160,.3), 0 0 40px rgba(60,20,100,.4);
+  overflow:hidden;
+}
+/* Stars */
+.a-bg::before{
+  content:'';position:absolute;inset:-10%;border-radius:50%;
+  background-image:
+    radial-gradient(1px 1px at 20% 15%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 25%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 90%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 90% 10%, rgba(200,200,255,.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 40%, rgba(200,180,255,.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62% 48%, rgba(180,220,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 78%, rgba(255,255,255,.5) 0%, transparent 100%);
+}
+/* Dark outer vignette */
+.a-bg::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,.55) 100%);
+}
+
+/* Orbital dashed ring */
+.a-ring{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:64%;height:64%;
+  border:2px dashed rgba(100,180,255,.3);
+  border-radius:50%;pointer-events:none;z-index:1;
+  animation:ringpulse 4s ease-in-out infinite;
+}
+@keyframes ringpulse{0%,100%{opacity:.4}50%{opacity:.75}}
+
+/* Center medallion */
+.a-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:min(82px,22vw);height:min(82px,22vw);
+  z-index:3;pointer-events:none;
+}
+.a-center-body{
+  width:100%;height:100%;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%, #1a8ae0 0%, #0a4a80 40%, #051830 100%);
+  border-radius:50%;
+  border:3px solid rgba(80,180,255,.5);
+  box-shadow:0 0 20px rgba(60,140,255,.5), inset 0 0 15px rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  animation:centerPulse 3s ease-in-out infinite;
+  position:relative;overflow:hidden;
+}
+@keyframes centerPulse{0%,100%{box-shadow:0 0 20px rgba(60,140,255,.4),inset 0 0 15px rgba(0,0,0,.7)}50%{box-shadow:0 0 35px rgba(60,140,255,.7),inset 0 0 15px rgba(0,0,0,.7)}}
+.a-center-eye{font-size:min(38px,10vw);filter:drop-shadow(0 0 8px #4af)}
+/* 8-point star ring */
+.a-star-ring{
+  position:absolute;inset:-8px;
+  background:
+    conic-gradient(from 0deg, transparent 10deg, rgba(255,200,60,.18) 22.5deg, transparent 35deg,
+      transparent 55deg, rgba(255,200,60,.18) 67.5deg, transparent 80deg,
+      transparent 100deg, rgba(255,200,60,.18) 112.5deg, transparent 125deg,
+      transparent 145deg, rgba(255,200,60,.18) 157.5deg, transparent 170deg,
+      transparent 190deg, rgba(255,200,60,.18) 202.5deg, transparent 215deg,
+      transparent 235deg, rgba(255,200,60,.18) 247.5deg, transparent 260deg,
+      transparent 280deg, rgba(255,200,60,.18) 292.5deg, transparent 305deg,
+      transparent 325deg, rgba(255,200,60,.18) 337.5deg, transparent 350deg);
+  border-radius:50%;
+  animation:starSpin 12s linear infinite;
+}
+@keyframes starSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ── SPOT PLATFORMS ── */
+.spot{
+  position:absolute;z-index:4;
+  transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  width:min(80px,21vw);
+}
+.spot-num{
+  font-size:min(9px,2.5vw);color:rgba(200,220,255,.6);
+  letter-spacing:1px;margin-bottom:1px;text-align:center;
+}
+.spot-platform{
+  width:min(56px,15vw);height:min(34px,9vw);
+  border-radius:8px 8px 4px 4px;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:2px;position:relative;overflow:hidden;
+  box-shadow:0 4px 10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.15);
+}
+/* Platform color themes */
+.spot-platform.s0{background:linear-gradient(180deg,#6b3a00 0%,#3d1e00 100%);border:2px solid #c07a20} /* Solar Temple - gold/brown */
+.spot-platform.s1{background:linear-gradient(180deg,#003868 0%,#001830 100%);border:2px solid #20a0ff} /* Crystal Obelisk - blue */
+.spot-platform.s2{background:linear-gradient(180deg,#1a0040 0%,#0d0020 100%);border:2px solid #9944ff} /* Starforge - purple */
+.spot-platform.s3{background:linear-gradient(180deg,#002040 0%,#001020 100%);border:2px solid #22ccaa} /* Luna Garden - teal */
+
+.spot-name{
+  font-size:min(9px,2.3vw);color:rgba(180,200,255,.7);text-align:center;
+  white-space:nowrap;margin-top:2px;letter-spacing:.5px;
+  text-shadow:0 1px 3px rgba(0,0,0,1);
+}
+
+/* ── CHARACTERS on arena ── */
+.ch{
+  position:absolute;text-align:center;pointer-events:none;z-index:12;
+  transform:translate(-50%,-50%);
+  transition:left .52s cubic-bezier(.34,1.4,.64,1),top .52s cubic-bezier(.34,1.4,.64,1),opacity .3s;
+}
+.ch-wrap{display:flex;flex-direction:column;align-items:center;gap:1px}
+.ch-role-tag{
+  font-size:min(9px,2.4vw);padding:1px 6px;border-radius:3px;
+  white-space:nowrap;font-weight:bold;letter-spacing:.5px;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
+}
+.ch-role-tag.hunter-tag{background:linear-gradient(90deg,#8a1b00,#ff5a36);color:#fff;border:1px solid rgba(255,150,100,.4)}
+.ch-role-tag.me-tag{background:rgba(255,204,0,.2);border:1px solid rgba(255,204,0,.6);color:var(--gold)}
+.ch-role-tag.cpu-tag{background:rgba(80,80,120,.5);border:1px solid rgba(120,120,200,.4);color:#aaaaff}
+.ch-ico{
+  font-size:min(40px,10.5vw);display:block;line-height:1;
+  filter:drop-shadow(0 4px 7px rgba(0,0,0,.9));
+  animation:bob 1.5s ease-in-out infinite;
+}
+.ch.r1 .ch-ico{animation-delay:.5s}.ch.r2 .ch-ico{animation-delay:1s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.ch-lbl{font-size:min(10px,2.6vw);display:block;white-space:nowrap;
+  text-shadow:0 1px 5px rgba(0,0,0,1);letter-spacing:.5px}
+.ch.dead{opacity:.2}.ch.dead .ch-ico{animation:none;filter:grayscale(1) drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+.ch.hidden{opacity:0;pointer-events:none}
+/* ME gold ring */
+.ch.me-char .ch-ico{
+  filter:drop-shadow(0 0 10px rgba(255,200,0,.6)) drop-shadow(0 4px 7px rgba(0,0,0,.9));
+}
+/* Hunter red glow */
+.ch.h .ch-ico{
+  filter:drop-shadow(0 0 10px rgba(255,80,40,.7)) drop-shadow(0 4px 7px rgba(0,0,0,.9));
+}
+/* ME ring underlay */
+.ch.me-char::after{
+  content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  width:min(52px,14vw);height:min(10px,2.5vw);
+  border-radius:50%;background:rgba(255,204,0,.18);
+  box-shadow:0 0 12px rgba(255,200,0,.5);
+  pointer-events:none;
+}
+/* Move FX */
+.move-go .ch-ico{animation:moveGo .45s ease both!important}
+.move-back .ch-ico{animation:moveBack .45s ease both!important}
+.move-jump .ch-ico{animation:moveJump .45s ease both!important}
+.move-stay .ch-ico{animation:moveStay .3s ease both!important}
+@keyframes moveGo{0%{transform:translateY(0)}40%{transform:translateY(-14px)}100%{transform:translateY(0)}}
+@keyframes moveBack{0%{transform:translateY(0)}40%{transform:translateY(-8px) scaleX(-1)}100%{transform:translateY(0)}}
+@keyframes moveJump{0%{transform:translateY(0) scale(1)}30%{transform:translateY(-20px) scale(1.15)}100%{transform:translateY(0) scale(1)}}
+@keyframes moveStay{0%,100%{transform:scale(1)}50%{transform:scale(.88)}}
+/* Smoke */
+.smoke{position:absolute;z-index:20;pointer-events:none;
+  width:min(52px,14vw);height:min(52px,14vw);
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle, rgba(200,200,255,.6) 0%, rgba(140,140,255,.2) 50%, transparent 100%);
+  border-radius:50%;animation:smokeFade .9s ease forwards}
+@keyframes smokeFade{0%{opacity:1;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-70%) scale(2.2)}}
+
+/* Caught FX */
+.cfx{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:min(20px,5.5vw);color:var(--H);z-index:30;display:none;white-space:nowrap;
+  text-shadow:0 0 16px var(--H);animation:pop .4s ease;background:rgba(0,0,0,.65);
+  padding:6px 14px;border-radius:8px;border:1px solid var(--H)}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(0)}70%{transform:translate(-50%,-50%) scale(1.25)}100%{transform:translate(-50%,-50%) scale(1)}}
+
+/* ══════════════════════════════════════
+   BOTTOM PANEL (3 columns)
+══════════════════════════════════════ */
+.bottom-3col{
+  width:100%;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:6px;
+  align-items:stretch;
+}
+/* Column labels */
+.col-label{
+  font-size:9px;color:var(--mu);letter-spacing:1.5px;text-align:center;
+  margin-bottom:4px;text-transform:uppercase;
+}
+
+/* LEFT: AGRID */
+.agrid-col{display:flex;flex-direction:column}
+.agrid{
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+  gap:5px;flex:1;
+}
+.ab{
+  font-family:'DotGothic16','Courier New',monospace;
+  border:2px solid;border-radius:8px;cursor:pointer;
+  padding:6px 4px;transition:all .12s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-width:min(58px,15vw);min-height:min(48px,12vw);
+}
+.ab:disabled{opacity:.22;cursor:not-allowed;transform:none!important}
+.ab:active:not(:disabled){transform:scale(.93)}
+.ab .ab-ico{font-size:min(18px,5vw);line-height:1}
+.ab .an{font-size:min(11px,2.8vw);font-family:'DotGothic16','Courier New',monospace;line-height:1}
+.ab.stay{border-color:var(--stay);color:var(--stay);background:rgba(232,67,147,.08)}
+.ab.stay:active:not(:disabled){background:rgba(232,67,147,.2)}
+.ab.go  {border-color:var(--go);  color:var(--go);  background:rgba(68,204,119,.08)}
+.ab.go:active:not(:disabled)  {background:rgba(68,204,119,.2)}
+.ab.bk  {border-color:var(--back);color:var(--back);background:rgba(255,140,34,.08)}
+.ab.bk:active:not(:disabled)  {background:rgba(255,140,34,.2)}
+.ab.jp  {border-color:var(--jump);color:var(--jump);background:rgba(68,136,255,.08)}
+.ab.jp:active:not(:disabled)  {background:rgba(68,136,255,.2)}
+
+/* CENTER: PLAYER-STRIP */
+.player-strip-col{display:flex;flex-direction:column}
+.player-strip{
+  flex:1;
+  background:rgba(255,204,0,.06);border:2px solid var(--gold);border-radius:9px;
+  padding:7px 8px;display:flex;flex-direction:column;gap:4px;
+  justify-content:center;
+  position:relative;overflow:hidden;transition:box-shadow .3s;
+}
+.player-strip.glow{box-shadow:0 0 18px rgba(255,204,0,.4);border-color:var(--gold)}
+.player-strip.hunter-mode{background:rgba(255,80,40,.06);border-color:var(--hunter)}
+.player-strip.hunter-mode.glow{box-shadow:0 0 18px rgba(255,80,40,.4)}
+.ps-row1{display:flex;align-items:center;gap:7px}
+.ps-emoji{font-size:min(30px,8vw);line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
+.ps-info{flex:1;min-width:0}
+.ps-name{font-size:min(14px,3.8vw);color:var(--gold);line-height:1.2}
+.ps-name.hunter-name{color:var(--hunter)}
+.ps-role{font-size:min(12px,3.2vw);line-height:1.2}
+.ps-meta{font-size:min(10px,2.6vw);color:var(--mu);line-height:1.5}
+.ps-pos-spot{font-size:min(9px,2.4vw);color:rgba(180,200,255,.6);margin-top:2px}
+
+/* RIGHT: LOG */
+.log-col{display:flex;flex-direction:column}
+.log{
+  flex:1;
+  background:var(--card2);border:1px solid var(--bdr);border-radius:8px;
+  padding:5px 8px;
+  width:min(110px,27vw);
+  overflow-y:auto;max-height:min(100px,26vw);
+}
+.le{font-size:min(9px,2.4vw);color:var(--mu);padding:2px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);line-height:1.4}
+.le:last-child{color:var(--tx);border-bottom:none}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+
+/* ── STATUS + READY ROW ── */
+.sbar{width:100%;padding:6px 10px;border-radius:7px;
+  font-size:clamp(11px,3vw,13px);text-align:center;min-height:32px;
+  display:flex;align-items:center;justify-content:center;border:1px solid;line-height:1.4;transition:all .2s}
+.sbar.info{background:rgba(34,170,255,.09);border-color:rgba(34,170,255,.4);color:#88ccff}
+.sbar.ok  {background:rgba(68,204,119,.09);border-color:rgba(68,204,119,.4);color:#88ee99}
+.sbar.bad {background:rgba(255,68,34,.09); border-color:rgba(255,68,34,.4); color:#ff9977}
+.sbar.warn{background:rgba(255,153,34,.09);border-color:rgba(255,153,34,.4);color:#ffbb66}
+.action-bar{display:flex;gap:6px;align-items:center}
+#sbarText{flex:1;min-width:0;font-size:clamp(10px,2.8vw,12px);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auto-btn{flex-shrink:0;font-family:'DotGothic16','Courier New',monospace;
+  font-size:10px;padding:4px 8px;border-radius:7px;border:1px solid rgba(255,204,0,.35);
+  background:rgba(255,204,0,.08);color:var(--gold);min-width:60px;cursor:pointer}
+.auto-btn.on{background:var(--gold);color:#000}
+.rbrow{display:flex;gap:5px;width:100%;justify-content:center;flex-wrap:wrap}
+.rb{font-size:clamp(9px,2.5vw,11px);padding:4px 8px;border-radius:5px;
+  border:1px solid var(--bdr);color:var(--mu);transition:all .2s}
+.rb.done{border-color:#44cc77;color:#44cc77;background:rgba(68,204,119,.09)}
+.albl{font-size:clamp(10px,2.8vw,12px);color:var(--gold);text-align:center;min-height:12px;letter-spacing:1px}
+.turnbonus-mini{width:100%;background:rgba(255,204,0,.04);border:1px solid var(--bdr);
+  border-radius:7px;padding:4px 8px;text-align:center;font-size:clamp(9px,2.5vw,11px);color:var(--mu)}
+.turnbonus-mini b{color:var(--gold)}
+
+/* ── SETUP PANELS ── */
+.s-ttl{font-size:clamp(22px,7vw,30px);color:var(--gold);letter-spacing:4px;text-align:center;
+  text-shadow:4px 4px 0 var(--gold2);line-height:1.1}
+.s-sub{font-size:clamp(11px,3vw,13px);color:var(--mu);letter-spacing:3px;text-align:center;margin-top:3px}
+.pot-display{width:100%;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;
+  padding:10px 14px;text-align:center}
+.pot-lbl{font-size:clamp(10px,2.8vw,12px);color:var(--mu);letter-spacing:2px}
+.pot-amt{font-size:clamp(20px,5.5vw,26px);color:var(--gold);margin-top:3px}
+
+/* ── RESULT ── */
+.rico{font-size:clamp(60px,17vw,84px);animation:spin .55s ease;text-align:center}
+@keyframes spin{0%{transform:scale(0) rotate(-180deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.rtit{font-size:clamp(22px,7vw,32px);text-align:center;animation:fi .4s ease .2s both}
+@keyframes fi{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.rtit.hw{color:var(--H)}.rtit.rw{color:var(--R0)}
+.rdesc{font-size:clamp(11px,3vw,13px);color:var(--mu);text-align:center;line-height:1.7}
+.ptable{width:100%;border:1px solid var(--bdr);border-radius:9px;overflow:hidden}
+.pt-head{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;
+  background:rgba(255,255,255,.04);padding:8px 11px;
+  font-size:clamp(9px,2.4vw,11px);color:var(--mu);letter-spacing:1px}
+.pt-row{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;
+  padding:9px 11px;border-top:1px solid var(--bdr);align-items:center;
+  font-size:clamp(11px,3vw,13px)}
+.pt-row.me-row{background:rgba(255,204,0,.06)}
+.pt-row.win{background:rgba(68,204,119,.05)}
+.pt-cell{display:flex;align-items:center;gap:4px}
+.pt-cell.right{justify-content:flex-end}
+.win-tag{font-size:10px;color:#44cc77;background:rgba(68,204,119,.15);
+  border:1px solid rgba(68,204,119,.4);border-radius:3px;padding:1px 5px}
+.plus{color:#44cc77}.minus{color:var(--H)}
+.pot-row{padding:9px 11px;background:rgba(255,204,0,.05);border-top:1px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:clamp(10px,2.7vw,12px)}
+.rematch-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.rb2{font-family:'DotGothic16','Courier New',monospace;font-size:clamp(10px,2.8vw,12px);
+  padding:9px 12px;border:2px solid var(--bdr);background:transparent;color:var(--mu);
+  border-radius:7px;cursor:pointer;min-height:40px;white-space:nowrap}
+.rb2:active{transform:scale(.96)}
+.rb2.p{border-color:var(--gold);color:var(--gold);background:rgba(255,204,0,.09)}
+hr{border:none;border-top:1px solid var(--bdr);width:100%}
+
+/* ── APP NAV ── */
+.home-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.home-card{background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:11px;min-height:110px}
+.home-card.wide{grid-column:1/-1;min-height:80px}
+.home-ttl{font-size:12px;color:var(--gold);margin-bottom:7px;letter-spacing:1px}
+.home-list{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--tx)}
+.home-item{display:flex;justify-content:space-between;gap:8px;padding:5px 7px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);border-radius:7px}
+.home-sub{color:var(--mu);font-size:10px}
+.game-menu{width:100%;display:flex;flex-direction:column;gap:7px}
+.mini-settings{width:100%;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:9px 11px}
+.mini-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}
+.mini-pill{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:7px;padding:6px 8px;font-size:11px}
+.primary-start{width:100%;padding:14px;font-family:'DotGothic16','Courier New',monospace;
+  font-size:17px;letter-spacing:2px;background:var(--gold);color:#000;border:none;border-radius:10px;box-shadow:0 5px 0 var(--gold2);cursor:pointer}
+.primary-start:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gold2)}
+.small-btn{flex:1;padding:9px 10px;border-radius:9px;border:1px solid var(--bdr);
+  background:transparent;color:var(--mu);font-family:'DotGothic16','Courier New',monospace;font-size:12px;cursor:pointer}
+.game-top-actions{width:100%;display:flex;gap:7px}
+.profile-card{width:100%;background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:13px}
+.profile-stat{display:flex;justify-content:space-between;align-items:center;padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.profile-stat:last-child{border-bottom:none}
+.app-section{display:none;width:100%}.app-section.on{display:block}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:56px;background:#0e111c;
+  border-top:1px solid var(--bdr);display:grid;grid-template-columns:repeat(4,1fr);z-index:9999}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  color:#667;font-size:10px;cursor:pointer}
+.tab span{font-size:9px}
+.tab.on{color:var(--gold)}
+/* Bet UI */
+.bet-who{width:100%;background:rgba(255,204,0,.07);border:3px solid var(--gold);
+  border-radius:12px;padding:14px;text-align:center}
+.bet-emoji{font-size:clamp(48px,13vw,64px);display:block;line-height:1}
+.bet-name{font-size:clamp(17px,5vw,22px);color:var(--gold);margin:6px 0}
+.bet-bal{font-size:clamp(12px,3.2vw,15px);color:var(--mu);margin-bottom:10px}
+.bet-selected{font-size:clamp(22px,6.5vw,30px);color:var(--gold);margin:8px 0;min-height:38px}
+.bet-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:100%}
+.bpb{font-family:'DotGothic16','Courier New',monospace;font-size:clamp(12px,3.5vw,15px);
+  padding:10px 4px;background:transparent;border:2px solid var(--bdr);color:var(--mu);
+  border-radius:7px;cursor:pointer;min-height:42px}
+.bpb:active{transform:scale(.95)}
+.bpb.on{border-color:var(--gold);color:var(--gold);background:rgba(255,204,0,.1)}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity .06s}
+
+/* ── REVENUE / META UI ── */
+.coin-chip{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;
+  background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.28);color:var(--gold);font-size:10px
+}
+.home-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.action-card{
+  background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px
+}
+.action-btn,.ghost-btn{
+  width:100%;padding:10px 10px;border-radius:8px;border:none;cursor:pointer;
+  font-family:'DotGothic16','Courier New',monospace;font-size:11px
+}
+.action-btn{background:var(--gold);color:#000;box-shadow:0 4px 0 var(--gold2)}
+.action-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold2)}
+.ghost-btn{background:rgba(255,255,255,.03);color:var(--tx);border:1px solid var(--bdr)}
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.shop-item{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:8px;padding:8px
+}
+.shop-name{font-size:11px;color:var(--gold);margin-bottom:4px}
+.shop-meta{font-size:10px;color:var(--mu);line-height:1.5}
+.shop-buy{
+  margin-top:7px;width:100%;padding:8px 8px;border-radius:7px;border:1px solid rgba(255,204,0,.28);
+  background:rgba(255,204,0,.08);color:var(--gold);font-family:'DotGothic16','Courier New',monospace;font-size:10px;cursor:pointer
+}
+.mission-list{display:flex;flex-direction:column;gap:6px}
+.mission-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:7px 8px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)
+}
+.mission-title{font-size:10px}
+.mission-reward{font-size:10px;color:var(--gold)}
+.econ-bar{
+  width:100%;display:flex;gap:6px;justify-content:space-between;align-items:center;flex-wrap:wrap
+}
+.fee-note{font-size:10px;color:var(--mu);line-height:1.5}
+.mode-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(68,204,119,.12);color:#88ee99;border:1px solid rgba(68,204,119,.35);font-size:9px}
+.tournament-badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;background:rgba(255,90,54,.12);color:#ff9977;border:1px solid rgba(255,90,54,.35);font-size:9px}
+
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9000;display:none;align-items:center;justify-content:center;padding:18px}
+.modal-bg.on{display:flex}
+.modal-box{background:var(--card2);border:2px solid var(--bdr);border-radius:14px;padding:20px 18px;width:100%;max-width:340px;text-align:center}
+.modal-ico{font-size:44px;margin-bottom:8px;display:block}
+.modal-ttl{font-size:clamp(15px,4.5vw,19px);color:var(--gold);margin-bottom:5px}
+.modal-coin-big{font-size:clamp(26px,7.5vw,34px);color:var(--gold);margin:8px 0}
+.modal-sub{font-size:clamp(10px,2.8vw,12px);color:var(--mu);line-height:1.7;margin-bottom:13px}
+.modal-btn{width:100%;padding:13px;border-radius:8px;border:none;background:var(--gold);color:#000;font-family:"DotGothic16","Courier New",monospace;font-size:clamp(13px,3.5vw,15px);cursor:pointer;box-shadow:0 4px 0 var(--gold2)}
+.modal-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold2)}
+.modal-btn2{width:100%;padding:10px;border-radius:8px;border:1px solid var(--bdr);background:transparent;color:var(--mu);font-family:"DotGothic16","Courier New",monospace;font-size:clamp(10px,2.8vw,12px);cursor:pointer;margin-top:7px}
+
+/* ── ONBOARDING ── */
+.onboard-bg{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9500;display:none;align-items:center;justify-content:center;padding:18px}
+.onboard-bg.on{display:flex}
+.onboard-box{background:var(--card2);border:2px solid rgba(34,170,255,.5);border-radius:14px;padding:20px;width:100%;max-width:340px}
+.onboard-ttl{font-size:clamp(14px,4.5vw,18px);color:#88ccff;margin-bottom:11px;text-align:center}
+.onboard-step{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.onboard-step:last-of-type{border-bottom:none}
+.onboard-num{width:21px;height:21px;border-radius:50%;background:rgba(34,170,255,.18);border:1px solid rgba(34,170,255,.5);color:#88ccff;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.onboard-txt{font-size:clamp(10px,2.8vw,12px);color:var(--tx);line-height:1.6;flex:1}
+.onboard-start{width:100%;margin-top:13px;padding:13px;border-radius:8px;border:none;background:#22aaff;color:#000;font-family:"DotGothic16","Courier New",monospace;font-size:clamp(13px,3.5vw,15px);cursor:pointer}
+
+/* ── INVITE BANNER ── */
+.invite-banner{width:100%;background:linear-gradient(135deg,rgba(34,170,255,.1),rgba(68,204,119,.07));border:2px solid rgba(34,170,255,.4);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.invite-banner:active{transform:scale(.98)}
+.invite-ico{font-size:26px;flex-shrink:0}
+.invite-ttl{font-size:clamp(11px,3.2vw,13px);color:#88ccff}
+.invite-sub{font-size:clamp(9px,2.5vw,11px);color:var(--mu);margin-top:2px}
+.invite-arrow{font-size:17px;color:#88ccff;flex-shrink:0;margin-left:auto}
+.invite-code{font-size:clamp(24px,7vw,32px);color:#22aaff;letter-spacing:6px;background:rgba(34,170,255,.08);border:2px dashed rgba(34,170,255,.4);border-radius:8px;padding:11px 18px;margin:10px 0;cursor:pointer}
+.invite-hint{font-size:10px;color:var(--mu)}
+
+/* ── STREAK BANNER ── */
+.streak-banner{width:100%;padding:10px 14px;border-radius:9px;display:flex;align-items:center;gap:10px}
+.streak-banner.win-streak{background:rgba(255,204,0,.09);border:2px solid rgba(255,204,0,.45)}
+.streak-banner.loss-streak{background:rgba(34,170,255,.07);border:2px solid rgba(34,170,255,.4)}
+.streak-num{font-size:clamp(20px,5.5vw,26px);line-height:1}
+.streak-num.w{color:var(--gold)}.streak-num.l{color:#88ccff}
+.streak-info{flex:1;min-width:0}
+.streak-lbl{font-size:clamp(11px,3vw,13px);color:var(--tx)}
+.streak-msg{font-size:clamp(9px,2.5vw,11px);color:var(--mu);margin-top:2px}
+
+/* ── MISSION PROGRESS BAR ── */
+.mission-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);transition:all .2s}
+.mission-item.done{background:rgba(68,204,119,.07);border-color:rgba(68,204,119,.3)}
+.mission-ico{font-size:14px;flex-shrink:0}
+.mission-info{flex:1;min-width:0}
+.mission-title{font-size:clamp(10px,2.8vw,12px)}
+.mission-prog-bar{height:3px;background:var(--bdr);border-radius:2px;margin-top:4px;overflow:hidden}
+.mission-prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+.mission-reward{font-size:clamp(10px,2.7vw,12px);color:var(--gold);white-space:nowrap;flex-shrink:0}
+.mission-chk{font-size:13px;flex-shrink:0}
+
+</style>
+</head>
+<body>
+<div class="flash" id="fl"></div>
+
+<!-- ONBOARDING -->
+<div class="onboard-bg" id="onboardBg">
+  <div class="onboard-box">
+    <div class="onboard-ttl">🎮 턴태그 술래잡기 — 게임 방법</div>
+    <div class="onboard-step"><div class="onboard-num">1</div><div class="onboard-txt">4개 포탈에서 🦁헌터 1명이 🏃러너들을 추격합니다</div></div>
+    <div class="onboard-step"><div class="onboard-num">2</div><div class="onboard-txt">매 턴 <b>STAY · GO · BACK · JUMP</b> 중 하나를 선택하면 동시에 공개됩니다</div></div>
+    <div class="onboard-step"><div class="onboard-num">3</div><div class="onboard-txt">헌터와 같은 칸에 있으면 러너 탈락! 모두 잡으면 헌터 승, 버티면 러너 승</div></div>
+    <div class="onboard-step"><div class="onboard-num">4</div><div class="onboard-txt">⚡ TURNOVER: 빠른 종료 = 헌터 보너스↑ · 오래 생존 = 러너 보너스↑</div></div>
+    <button class="onboard-start" onclick="closeOnboard()">🚀 시작하기!</button>
+  </div>
+</div>
+
+<!-- GENERAL MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal-box">
+    <span class="modal-ico" id="modalIco">🎁</span>
+    <div class="modal-ttl" id="modalTtl"></div>
+    <div class="modal-coin-big" id="modalCoin"></div>
+    <div class="modal-sub" id="modalSub"></div>
+    <button class="modal-btn" id="modalBtn" onclick="closeModal()">확인</button>
+    <button class="modal-btn2" id="modalBtn2" style="display:none" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<!-- INVITE MODAL -->
+<div class="modal-bg" id="inviteBg" onclick="closeInvite(event)">
+  <div class="modal-box">
+    <span class="modal-ico">🔗</span>
+    <div class="modal-ttl" style="color:#88ccff">친구 초대</div>
+    <div class="modal-sub">아래 코드를 친구에게 공유하세요!<br>설치 없이 링크 클릭 → 바로 입장!</div>
+    <div class="invite-code" id="inviteCode" onclick="copyInvite()">TT-4821</div>
+    <div class="invite-hint">탭하면 복사됩니다</div>
+    <button class="modal-btn" style="background:#22aaff;margin-top:12px" onclick="shareInvite()">📤 카카오/문자로 공유</button>
+    <button class="modal-btn2" onclick="closeInvite()">닫기</button>
+  </div>
+</div>
+
+
+<!-- ════════ HOME S0 ════════ -->
+<div class="screen on" id="S0">
+  <div class="topbar">
+    <span class="topbar-ttl">턴태그 술래잡기</span>
+    <span class="topbar-sub">TURN TAG</span>
+  </div>
+
+  <!-- 초대 링크 배너 (개발계획서 최우선 항목) -->
+  <div class="invite-banner" onclick="showInvite()">
+    <span class="invite-ico">🔗</span>
+    <div style="flex:1;min-width:0">
+      <div class="invite-ttl">친구 초대 — 링크 하나로 바로 플레이!</div>
+      <div class="invite-sub">설치 없이 1초 입장 · 초대 보상 +100P</div>
+    </div>
+    <span class="invite-arrow">›</span>
+  </div>
+
+  <div class="econ-bar">
+    <div class="coin-chip" id="topPointChip">💰 1000 P</div>
+    <div class="coin-chip" id="topGemChip">🎟️ 토큰 0</div>
+    <div class="coin-chip" id="topStreakChip">🔥 연승 0</div>
+  </div>
+
+  <div class="home-grid">
+    <div class="home-card">
+      <div class="home-ttl">🏆 포인트 랭킹</div>
+      <div class="home-list">
+        <div class="home-item"><span>1위 TURNMASTER</span><span class="home-sub">14,800P</span></div>
+        <div class="home-item"><span>2위 RUNFOX</span><span class="home-sub">12,420P</span></div>
+        <div class="home-item"><span>3위 HUNTERX</span><span class="home-sub">11,960P</span></div>
+      </div>
+    </div>
+    <div class="home-card">
+      <div class="home-ttl">📢 공지사항</div>
+      <div class="home-list">
+        <div class="home-item"><span>시즌 랭킹전 오픈</span></div>
+        <div class="home-item"><span>광고 시청 보상 추가</span></div>
+        <div class="home-item"><span>토너먼트 모드 베타</span></div>
+      </div>
+    </div>
+    <div class="home-card wide">
+      <div class="home-ttl">🚪 열린 방</div>
+      <div class="home-list">
+        <div class="home-item"><span>빠른 매칭 #31</span><span class="mode-badge">일반전</span></div>
+        <div class="home-item"><span>시즌 랭킹전 #207</span><span class="tournament-badge">토너먼트</span></div>
+        <div class="home-item"><span>친구방 @choi</span><span class="home-sub">1/4</span></div>
+      </div>
+    </div>
+    <div class="home-card wide">
+      <div class="home-ttl">💬 채팅창</div>
+      <div class="home-list">
+        <div class="home-item"><span>[전체] 랭킹전 같이 할 사람?</span></div>
+        <div class="home-item"><span>[전체] 광고 보면 100P 준다</span></div>
+        <div class="home-item"><span>[전체] 오늘 일일 보상 받았음?</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-actions">
+    <div class="action-card">
+      <div class="home-ttl">🎁 무료 보상</div>
+      <div class="fee-note">일일 출석 보상과 광고 시청 보상으로 무료 포인트를 확보한다.</div>
+      <div style="height:7px"></div>
+      <button class="action-btn" onclick="claimDailyReward()">일일 보상 받기</button>
+      <div style="height:6px"></div>
+      <button class="ghost-btn" onclick="watchAdReward()">광고 보고 +100P</button>
+    </div>
+    <div class="action-card">
+      <div class="home-ttl">🛍️ 코인 상점</div>
+      <div class="shop-grid">
+        <div class="shop-item">
+          <div class="shop-name">스타터 팩</div>
+          <div class="shop-meta">1,000P · 1,900원</div>
+          <button class="shop-buy" onclick="buyCoins(1000,1900)">구매</button>
+        </div>
+        <div class="shop-item">
+          <div class="shop-name">배틀 팩</div>
+          <div class="shop-meta">5,500P · 8,900원</div>
+          <button class="shop-buy" onclick="buyCoins(5500,8900)">구매</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-card wide">
+    <div class="home-ttl">🎯 오늘의 미션</div>
+    <div class="mission-list" id="missionList"></div>
+  </div>
+</div>
+
+<!-- ════════ GAME MENU SG ════════ -->
+<div class="screen" id="SG">
+  <div class="topbar">
+    <button class="homebtn" onclick="goTabByName('home')">🏠</button>
+    <span class="topbar-ttl">턴태그 술래잡기</span>
+    <span class="topbar-sub">게임</span>
+  </div>
+  <div class="game-menu">
+    <div class="mini-settings">
+      <div class="home-ttl">⚙️ 현재 게임설정</div>
+      <div class="mini-settings-grid" id="miniSettingsGrid">
+        <div class="mini-pill">인원수 3인</div>
+        <div class="mini-pill">모드 전원 인간</div>
+        <div class="mini-pill">역할 랜덤</div>
+        <div class="mini-pill">턴수 5턴</div>
+        <div class="mini-pill">AI 보통</div>
+        <div class="mini-pill">베팅 100코인</div>
+      </div>
+    </div>
+    <div class="pnl" style="padding:10px 12px"><div class="plbl">수익 모델 안내</div><div class="fee-note">일반전은 기본 베팅만 적용되고, 랭킹전/토너먼트는 플랫폼 운영 수수료 10%가 차감된다. 승리자는 남은 팟과 TURNOVER 보너스를 가져간다.</div></div><div class="game-top-actions">
+      <button class="small-btn" onclick="goTabByName('settings')">게임설정</button>
+    </div>
+    <button class="primary-start" onclick="startGameFromSettings()">🎮 게임시작</button>
+  </div>
+</div>
+
+<!-- ════════ SETTINGS SB ════════ -->
+<div class="screen" id="SB">
+  <div class="topbar">
+    <button class="homebtn" onclick="goTabByName('home')">🏠</button>
+    <span class="topbar-ttl">턴태그 술래잡기</span>
+    <span class="topbar-sub" id="bet-step-lbl">게임설정</span>
+  </div>
+  <div class="pnl"><div class="plbl">인원 수</div><div class="bg">
+    <button class="b" data-g="pc" onclick="pick(this,'pc',2)">2인</button>
+    <button class="b on" data-g="pc" onclick="pick(this,'pc',3)">3인</button>
+    <button class="b" data-g="pc" onclick="pick(this,'pc',4)">4인</button>
+  </div></div>
+  <div class="pnl"><div class="plbl">게임 모드</div><div class="bg">
+    <button class="b on" data-g="mode" onclick="pick(this,'mode','pvp')">👥 전원 인간</button>
+    <button class="b" data-g="mode" onclick="pick(this,'mode','pvc')">🤖 나 vs CPU</button>
+  </div></div>
+  <div class="pnl"><div class="plbl">나의 역할</div><div class="bg">
+    <button class="b on" data-g="role" onclick="pick(this,'role','random')">🎲 랜덤</button>
+    <button class="b" data-g="role" onclick="pick(this,'role','hunter')">🦁 헌터</button>
+    <button class="b" data-g="role" onclick="pick(this,'role','runner')">🏃 러너</button>
+  </div></div>
+  <div class="pnl"><div class="plbl">턴 수</div><div class="bg">
+    <button class="b" data-g="turns" onclick="pick(this,'turns',3)">3턴</button>
+    <button class="b on" data-g="turns" onclick="pick(this,'turns',5)">5턴</button>
+    <button class="b" data-g="turns" onclick="pick(this,'turns',7)">7턴</button>
+    <button class="b" data-g="turns" onclick="pick(this,'turns',10)">10턴</button>
+  </div></div>
+  <div class="pnl" id="diffPnl" style="display:none"><div class="plbl">AI 난이도</div><div class="bg">
+    <button class="b" data-g="diff" onclick="pick(this,'diff','easy')">🐣 쉬움</button>
+    <button class="b on" data-g="diff" onclick="pick(this,'diff','normal')">🎯 보통 (페이크AI)</button>
+    <button class="b" data-g="diff" onclick="pick(this,'diff','hard')">💀 어려움 (심리AI)</button>
+  </div></div>
+  <div class="pnl"><div class="plbl">대전 타입</div><div class="bg"><button class="b on" data-g="matchType" onclick="pick(this,'matchType','normal')">일반전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','ranked')">랭킹전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','tournament')">토너먼트</button></div></div><div class="pnl"><div class="plbl">베팅 코인</div><div class="bg">
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,50)">50</button>
+    <button class="b on" data-g="bet" onclick="pickBetBtn(this,100)">100</button>
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,200)">200</button>
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,500)">500</button>
+  </div></div>
+  <div class="pot-display">
+    <div class="pot-lbl">예상 팟 (TOTAL POT)</div>
+    <div class="pot-amt" id="potAmt">300 코인</div>
+    <div style="font-size:clamp(10px,2.7vw,12px);color:var(--mu);margin-top:3px" id="potBreakdown">100 × 3인 = 300</div>
+  </div>
+  <button class="bstart" onclick="startGameFromSettings()">🎮 게임 시작</button>
+</div>
+
+<!-- ════════ MY INFO SM ════════ -->
+<div class="screen" id="SM">
+  <div class="topbar">
+    <button class="homebtn" onclick="goTabByName('home')">🏠</button>
+    <span class="topbar-ttl">턴태그 술래잡기</span>
+    <span class="topbar-sub">내정보</span>
+  </div>
+  <div class="profile-card">
+    <div class="home-ttl">👤 내정보</div>
+    <div class="profile-stat"><span>내 랭킹</span><b id="myRank">#27</b></div>
+    <div class="profile-stat"><span>보유 포인트</span><b id="myPoint">1000 P</b></div>
+    <div class="profile-stat"><span>🔥 현재 연승</span><b id="myStreak">0</b></div>
+    <div class="profile-stat"><span>🎮 총 게임 수</span><b id="myGames">0판</b></div>
+    <div class="profile-stat"><span>🦁 헌터 승리</span><b id="myHunterWins">0</b></div>
+    <div class="profile-stat"><span>🏃 러너 승리</span><b id="myRunnerWins">0</b></div>
+    <div class="profile-stat"><span>📺 광고 시청</span><b id="myAds">0회</b></div>
+  </div>
+  <div class="home-card wide" style="margin-top:0">
+    <div class="home-ttl">🎯 미션 현황</div>
+    <div class="mission-list" id="missionListSM"></div>
+  </div>
+</div>
+
+<!-- ════════ GAME S1 ════════ -->
+<div class="screen" id="S1">
+  <div class="topbar">
+    <button class="homebtn" onclick="goHome()">🏠</button>
+    <div class="game-big-title">턴태그 술래잡기</div>
+    <span class="topbar-sub" id="g-turn-top">턴 1/5</span>
+  </div>
+
+  <!-- HUD: turn bar + others -->
+  <div class="hud-top">
+    <div class="tbar">
+      <div class="tnum" id="tnum">1</div>
+      <div class="ttot" id="ttot">/ 5턴</div>
+      <div class="prog"><div class="pfill" id="pfill" style="width:0%"></div></div>
+      <div class="alivecnt" id="alivecnt">🏃2</div>
+    </div>
+    <div class="others-row" id="othersRow"></div>
+  </div>
+
+  <!-- ARENA -->
+  <div class="arena-shell">
+    <div class="arena" id="arena">
+      <div class="a-bg"></div>
+      <div class="a-ring"></div>
+      <!-- Center medallion -->
+      <div class="a-center">
+        <div class="a-center-body">
+          <div class="a-star-ring"></div>
+          <span class="a-center-eye">👁️</span>
+        </div>
+      </div>
+      <!-- 4 named spots: 0=TOP, 1=RIGHT, 2=BOT, 3=LEFT -->
+      <div class="spot" style="left:50%;top:14%">
+        <div class="spot-num">① 자리</div>
+        <div class="spot-platform s0"></div>
+        <div class="spot-name">Solar Temple</div>
+      </div>
+      <div class="spot" style="left:86%;top:50%">
+        <div class="spot-num">② 자리</div>
+        <div class="spot-platform s1"></div>
+        <div class="spot-name">크리스탈 오벨리스크</div>
+      </div>
+      <div class="spot" style="left:50%;top:86%">
+        <div class="spot-num">③ 자리</div>
+        <div class="spot-platform s2"></div>
+        <div class="spot-name">Starforge</div>
+      </div>
+      <div class="spot" style="left:14%;top:50%">
+        <div class="spot-num">④ 자리</div>
+        <div class="spot-platform s3"></div>
+        <div class="spot-name">루나 가든</div>
+      </div>
+      <div class="cfx" id="cfx">잡혔다! 🎯</div>
+    </div>
+  </div>
+
+  <!-- STATUS ROW -->
+  <div class="sbar info action-bar" id="sbar">
+    <span id="sbarText">준비 중...</span>
+    <button class="auto-btn" id="autoBtn" onclick="toggleAuto()">자동실행</button>
+  </div>
+  <div class="rbrow" id="rbrow"></div>
+
+  <!-- BOTTOM 3-COLUMN PANEL -->
+  <div class="bottom-3col">
+    <!-- LEFT: AGRID -->
+    <div class="agrid-col">
+      <div class="col-label">AGRID</div>
+      <div class="agrid">
+        <button class="ab stay" id="bSt" onclick="act('STAY')">
+          <span class="ab-ico">🔴</span><span class="an">STAY</span>
+        </button>
+        <button class="ab go" id="bGo" onclick="act('GO')">
+          <span class="ab-ico">▶</span><span class="an">GO</span>
+        </button>
+        <button class="ab bk" id="bBk" onclick="act('BACK')">
+          <span class="ab-ico">◀</span><span class="an">BACK</span>
+        </button>
+        <button class="ab jp" id="bJp" onclick="act('JUMP')">
+          <span class="ab-ico">⚡</span><span class="an">JUMP</span>
+        </button>
+      </div>
+    </div>
+    <!-- CENTER: PLAYER-STRIP -->
+    <div class="player-strip-col">
+      <div class="col-label">PLAYER-STRIP</div>
+      <div class="player-strip" id="meCard">
+        <div class="ps-row1">
+          <span class="ps-emoji" id="meEmoji">🐱</span>
+          <div class="ps-info">
+            <div class="ps-name" id="meName">⭐ 나</div>
+            <div class="ps-role" id="meRole">🏃 RUNNER</div>
+            <div class="ps-meta">
+              <span id="meBal">💰 1000코인</span>
+            </div>
+            <div class="ps-pos-spot" id="mePosSpot">📍 Starforge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT: LOG -->
+    <div class="log-col">
+      <div class="col-label">LOG</div>
+      <div class="log" id="logEl"><div class="le" style="color:var(--mu)">— 시작 —</div></div>
+    </div>
+  </div>
+
+  <div class="turnbonus-mini" id="turnBonusMini">TURNOVER · <b>헌터 조기승 보너스</b> / <b>러너 생존 보너스</b></div>
+</div>
+
+<!-- ════════ RESULT S2 ════════ -->
+<div class="screen" id="S2">
+  <div class="topbar">
+    <button class="homebtn" onclick="goHome()">🏠</button>
+    <span class="topbar-ttl">턴태그 술래잡기</span>
+    <span class="topbar-sub"></span>
+  </div>
+  <div class="rico" id="rico">🏆</div>
+  <div class="rtit" id="rtit">승리!</div>
+  <div class="rdesc" id="rdesc">—</div>
+  <!-- 연승/연패 배너 (개발계획서 Phase 1) -->
+  <div class="streak-banner win-streak" id="streakBanner" style="display:none">
+    <div class="streak-num w" id="streakNum">0</div>
+    <div class="streak-info"><div class="streak-lbl" id="streakLbl">연승!</div><div class="streak-msg" id="streakMsg"></div></div>
+  </div>
+  <div class="ptable" id="ptable"></div>
+  <hr>
+  <div class="rematch-row">
+    <button class="rb2 p" onclick="rematch('same')">🔄 재대결</button>
+    <button class="rb2" onclick="rematch('swap')">↔ 역할 교체</button>
+    <button class="rb2" onclick="rematch('bet')">💰 베팅 변경</button>
+    <button class="rb2" onclick="rematch('new')">🆕 새 게임</button>
+  </div>
+  <div style="font-size:10px;color:var(--bdr);text-align:center">턴태그 술래잡기 · TURN TAG</div>
+</div>
+
+<script>
+/* ══ CONSTANTS ══ */
+const MISSION_DEF=[
+  {id:'play3',   ico:'🎮', txt:'게임 3판 플레이',   reward:150, max:3, key:'gamesPlayed'},
+  {id:'hunter1', ico:'🦁', txt:'헌터로 1승 달성',   reward:120, max:1, key:'hunterWins'},
+  {id:'ad1',     ico:'📺', txt:'광고 보상 1회 받기', reward:50,  max:1, key:'adsWatched'},
+];
+
+const SPOT_NAMES = ['Solar Temple','크리스탈 오벨리스크','Starforge','루나 가든'];
+const PX = [{x:160,y:45},{x:276,y:160},{x:160,y:276},{x:44,y:160}];
+const OFF = [
+  [{x:0,y:0}],
+  [{x:-22,y:0},{x:22,y:0}],
+  [{x:-22,y:10},{x:22,y:10},{x:0,y:-16}],
+  [{x:-20,y:-10},{x:20,y:-10},{x:-20,y:10},{x:20,y:10}]
+];
+const CHARS = [
+  {emoji:'🐱',color:'#ffcc00'},
+  {emoji:'🐶',color:'#22aaff'},
+  {emoji:'🐸',color:'#44cc77'},
+  {emoji:'🦊',color:'#ff9922'},
+];
+const CPU_CHAR = {emoji:'🤖',color:'#aa88ff'};
+const HUNTER_ICON = '🦁';
+
+/* ══ STATE ══ */
+const G = {
+  pc:3,mode:'pvp',role:'random',turns:5,diff:'normal',
+  turn:1,hunterIdx:0,
+  pos:[0,0,0,0],alive:[true,true,true,true],
+  moves:[null,null,null,null],choosePly:0,
+  bet:100,balances:[1000,1000,1000,1000],matchType:'normal',gems:0,adsWatched:0,dailyClaimed:false,gamesPlayed:0,hunterWins:0,runnerWins:0,streak:0,lossStreak:0,
+  scores:{h:0,r:0},lastBonus:null,actionTimer:null,lossStreak:0,
+};
+const ME = 0;
+
+/* ══ IDENTITY ══ */
+const isHunter = i => i === G.hunterIdx;
+function runnerRank(i){let r=0;for(let j=0;j<G.pc;j++){if(j===G.hunterIdx)continue;if(j===i)return r;r++;}return 0;}
+function baseChar(i){return (G.mode==='pvc'&&i!==ME)?CPU_CHAR:CHARS[i]||CHARS[3];}
+function getChar(i){const b=baseChar(i);return isHunter(i)?{...b,emoji:HUNTER_ICON}:b;}
+const emoji = i => getChar(i).emoji;
+const color = i => baseChar(i).color;
+function label(i){
+  if(i===ME) return '나';
+  if(G.mode==='pvc'&&i!==ME) return 'CPU'+(G.pc>2?i:'');
+  return 'P'+(i+1);
+}
+const roleLbl = i => isHunter(i)?'🦁 HUNTER':'🏃 RUNNER';
+const spotName = pos => SPOT_NAMES[pos]||'?';
+function portalName(pos){return ['①TOP','②RIGHT','③BOT','④LEFT'][pos]||'?';}
+function hexAlpha(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function hunterBonusRate(turn=G.turn){const s=[.60,.45,.30,.18,.10,.06,.03,0];return s[Math.min(turn-1,s.length-1)];}
+function runnerBonusRate(turns=G.turns){return Math.min(.08*(turns-1),.56);}
+function pct(v){return (v>=0?'+':'')+Math.round(v*100)+'%';}
+
+/* ══ AUDIO ══ */
+let AC;
+const getAC=()=>AC||(AC=new(window.AudioContext||window.webkitAudioContext)());
+function beep(f,d,t='square',v=.07){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.start();o.stop(c.currentTime+d);}catch(e){}}
+const SFX={
+  sel:()=>beep(440,.08),stay:()=>beep(330,.12,'sine'),
+  go:()=>{beep(440,.07);setTimeout(()=>beep(554,.1),75)},
+  back:()=>{beep(440,.07);setTimeout(()=>beep(330,.1),75)},
+  jump:()=>{beep(440,.05);setTimeout(()=>beep(554,.05),55);setTimeout(()=>beep(659,.12),110)},
+  ready:()=>{beep(660,.07);setTimeout(()=>beep(880,.12),100)},
+  catch:()=>{beep(220,.15,'sawtooth');setTimeout(()=>beep(165,.3,'sawtooth'),160)},
+  esc:()=>[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.1),i*80)),
+  coin:()=>{[880,1047,1318].forEach((f,i)=>setTimeout(()=>beep(f,.08,'sine',.1),i*80))},
+  start:()=>[262,330,392,524].forEach((f,i)=>setTimeout(()=>beep(f,.11),i*90)),
+};
+const sfx=n=>SFX[n]&&SFX[n]();
+
+/* ══ SETUP ══ */
+function pick(el,key,val){
+  G[key]=val;sfx('sel');
+  el.closest('.bg').querySelectorAll('.b').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('diffPnl').style.display=G.mode==='pvc'?'block':'none';
+  syncMiniSettings();updatePotDisplay();
+}
+function pickBetBtn(el,amt){G.bet=amt;sfx('sel');el.closest('.bg').querySelectorAll('.b').forEach(b=>b.classList.remove('on'));el.classList.add('on');syncMiniSettings();updatePotDisplay();}
+function updatePotDisplay(){
+  const eff=Math.min(G.bet,G.balances[ME]);
+  const pot=eff*G.pc;
+  document.getElementById('potAmt').textContent=pot+' 코인';
+  const fee=Math.round(pot*matchFeeRate());
+  document.getElementById('potBreakdown').textContent=eff+' × '+G.pc+'인 = '+pot+' · 운영수수료 '+fee+' ('+matchFeeRateText()+')';
+}
+function goHome(){goTabByName('home');}
+
+/* ══ MOVEMENT + AI ══ */
+const mv=(pos,act)=>act==='STAY'?pos:act==='GO'?(pos+1)%4:act==='BACK'?(pos+3)%4:(pos+2)%4;
+const dist=(a,b)=>{const d=Math.abs(a-b);return Math.min(d,4-d);};
+const HUMAN_TIMEOUT=3000;
+const randomAct=()=>['STAY','GO','BACK','JUMP'][Math.floor(Math.random()*4)];
+function clearActionTimer(){if(G.actionTimer){clearTimeout(G.actionTimer);G.actionTimer=null;}}
+function startHumanTimeout(i){
+  clearActionTimer();
+  if(AUTO_MODE) return;
+  G.actionTimer=setTimeout(()=>{
+    if(G.choosePly!==i||G.moves[i]!==null)return;
+    const picked=randomAct();
+    addLog('⏳ '+(i===ME?'나':label(i))+' 자동: '+picked);
+    act(picked);
+  },HUMAN_TIMEOUT);
+}
+function cpuPick(i){
+  const iH=isHunter(i),myP=G.pos[i];
+  const acts=['STAY','GO','BACK','JUMP'];
+  if(G.diff==='easy')return acts[Math.random()*4|0];
+  // 페이크 AI (normal): 30% 의도적 비최적으로 인간처럼 보임
+  if(G.diff==='normal'){if(Math.random()<.30)return acts[Math.random()*4|0];}
+  // 심리 AI (hard): 1% 의도적 실수로 예측 교란
+  if(G.diff==='hard'&&Math.random()<.01)return acts[Math.random()*4|0];
+  if(G.diff==='normal'&&Math.random()>.6)return acts[Math.random()*4|0];
+  if(iH){
+    const rpos=[];for(let j=0;j<G.pc;j++)if(!isHunter(j)&&G.alive[j])rpos.push(G.pos[j]);
+    for(const a of acts)if(rpos.includes(mv(myP,a)))return a;
+    return [...acts].sort((a,b)=>rpos.reduce((s,r)=>s+dist(mv(myP,a),r),0)-rpos.reduce((s,r)=>s+dist(mv(myP,b),r),0))[0];
+  }else{
+    const hp=G.pos[G.hunterIdx];
+    return [...acts].sort((a,b)=>dist(mv(myP,b),hp)-dist(mv(myP,a),hp))[0];
+  }
+}
+
+/* ══ MOVE FX ══ */
+function applyMoveFX(){
+  for(let i=0;i<G.pc;i++){
+    const el=document.getElementById('ch'+i);if(!el)continue;
+    el.classList.remove('move-go','move-back','move-jump','move-stay');
+    const m=G.moves[i];
+    if(m==='GO')el.classList.add('move-go');
+    else if(m==='BACK')el.classList.add('move-back');
+    else if(m==='JUMP')el.classList.add('move-jump');
+    else if(m==='STAY')el.classList.add('move-stay');
+  }
+}
+function clearMoveFX(){for(let i=0;i<G.pc;i++){const el=document.getElementById('ch'+i);if(el)el.classList.remove('move-go','move-back','move-jump','move-stay');}}
+function spawnSmoke(i){
+  const arena=document.getElementById('arena');
+  const el=document.getElementById('ch'+i);
+  if(!arena||!el)return;
+  const s=document.createElement('div');s.className='smoke';
+  s.style.left=el.style.left||'50%';s.style.top=el.style.top||'50%';
+  arena.appendChild(s);setTimeout(()=>s.remove(),950);
+}
+
+/* ══ DOM BUILD ══ */
+function buildOthersRow(){
+  const row=document.getElementById('othersRow');row.innerHTML='';
+  const others=[];for(let i=0;i<G.pc;i++)if(i!==ME)others.push(i);
+  row.style.gridTemplateColumns=`repeat(${others.length},1fr)`;
+  others.forEach(i=>{
+    const d=document.createElement('div');
+    d.id='oc'+i;d.className='oc';
+    d.style.cssText=`border-color:${color(i)};background:${hexAlpha(color(i),.07)};color:${color(i)}`;
+    d.innerHTML=`<span class="oc-ico">${emoji(i)}</span>
+      <div class="oc-nm">${label(i)}</div>
+      <div class="oc-role">${roleLbl(i)}${isHunter(i)?'<span class="hunter-badge">HUNTER</span>':''}</div>
+      <div class="oc-pos" id="opos${i}">📍 ${spotName(G.pos[i])}</div>
+      <div class="oc-bet">🎰 ${Math.min(G.bet,G.balances[i])}코인</div>`;
+    row.appendChild(d);
+  });
+}
+
+function buildChars(){
+  document.getElementById('arena').querySelectorAll('.ch').forEach(c=>c.remove());
+  const arena=document.getElementById('arena');
+  for(let i=0;i<G.pc;i++){
+    const d=document.createElement('div');
+    d.id='ch'+i;
+    const cls=['ch'];
+    if(isHunter(i)) cls.push('h');
+    else cls.push('r'+runnerRank(i));
+    if(i===ME) cls.push('me-char');
+    d.className=cls.join(' ');
+    // Tag: HUNTER or ⭐나 or CPU label
+    let tag='';
+    if(isHunter(i)) tag=`<div class="ch-role-tag hunter-tag">🦁 HUNTER</div>`;
+    else if(i===ME) tag=`<div class="ch-role-tag me-tag">⭐ 나 (Me)</div>`;
+    else tag=`<div class="ch-role-tag cpu-tag">${label(i)}</div>`;
+    d.innerHTML=`<div class="ch-wrap">
+      ${tag}
+      <span class="ch-ico">${emoji(i)}</span>
+      <span class="ch-lbl" style="color:${color(i)}">${spotName(G.pos[i])}</span>
+    </div>`;
+    arena.appendChild(d);
+  }
+}
+
+function buildReadyBadges(){
+  const row=document.getElementById('rbrow');row.innerHTML='';
+  for(let i=0;i<G.pc;i++){
+    const d=document.createElement('div');d.id='rb'+i;d.className='rb';
+    d.textContent=(i===ME?'⭐나':label(i))+' ⏳';
+    row.appendChild(d);
+  }
+}
+
+/* ══ ARENA RENDER ══ */
+function computePx(){
+  const byPos={0:[],1:[],2:[],3:[]};
+  for(let i=0;i<G.pc;i++)byPos[G.pos[i]].push(i);
+  const res={};
+  for(const [p,pl] of Object.entries(byPos)){
+    const base=PX[p],n=pl.length,offs=OFF[Math.min(n,4)-1];
+    pl.forEach((pi,rank)=>{const o=offs[rank]||{x:0,y:0};res[pi]={x:base.x+o.x,y:base.y+o.y};});
+  }
+  return res;
+}
+function updateArena(){
+  const px=computePx();
+  for(let i=0;i<G.pc;i++){
+    const el=document.getElementById('ch'+i);if(!el)continue;
+    const dead=!isHunter(i)&&!G.alive[i];
+    if(px[i]){el.style.left=px[i].x+'px';el.style.top=px[i].y+'px';}
+    const cls=['ch'];
+    if(isHunter(i))cls.push('h');else cls.push('r'+runnerRank(i));
+    if(i===ME)cls.push('me-char');
+    if(dead)cls.push('dead','hidden');
+    el.className=cls.join(' ');
+    // Update spot label inside char
+    const lbl=el.querySelector('.ch-lbl');
+    if(lbl)lbl.textContent=spotName(G.pos[i]);
+  }
+}
+function updateMeCard(){
+  const iH=isHunter(ME);
+  document.getElementById('meEmoji').textContent=emoji(ME);
+  const nameEl=document.getElementById('meName');
+  nameEl.textContent='⭐ 나';
+  nameEl.className='ps-name'+(iH?' hunter-name':'');
+  document.getElementById('meRole').textContent=roleLbl(ME);
+  document.getElementById('meRole').style.color=iH?'var(--hunter)':'var(--runner)';
+  document.getElementById('meBal').textContent='💰 '+G.balances[ME]+'코인  🎰 '+Math.min(G.bet,G.balances[ME]);
+  document.getElementById('mePosSpot').textContent='📍 '+spotName(G.pos[ME]);
+  const mc=document.getElementById('meCard');
+  mc.style.borderColor=iH?'var(--hunter)':'var(--gold)';
+  mc.style.background=iH?'rgba(255,90,54,.1)':'rgba(255,204,0,.06)';
+  mc.classList.toggle('hunter-mode',iH);
+  mc.classList.toggle('dead',!iH&&!G.alive[ME]);
+}
+function updateOthers(){
+  for(let i=0;i<G.pc;i++){
+    if(i===ME)continue;
+    const el=document.getElementById('opos'+i);if(el)el.textContent='📍 '+spotName(G.pos[i]);
+    const oc=document.getElementById('oc'+i);if(oc){const dead=!isHunter(i)&&!G.alive[i];oc.className='oc'+(dead?' dead':'');}
+  }
+  const alive=G.alive.filter((a,i)=>!isHunter(i)&&a).length;
+  document.getElementById('alivecnt').textContent='🏃'+alive;
+}
+
+/* ══ UI HELPERS ══ */
+function showSc(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(id==='S0')setTabActive('home');
+  else if(id==='SG'||id==='S1')setTabActive('game');
+  else if(id==='SB')setTabActive('settings');
+  else if(id==='SM')setTabActive('me');
+}
+const setSbar=(msg,cls='info')=>{
+  const el=document.getElementById('sbar');
+  const txt=document.getElementById('sbarText');
+  if(txt)txt.textContent=msg;else if(el)el.textContent=msg;
+  if(el)el.className='sbar action-bar '+cls;
+};
+const setActs=on=>['bSt','bGo','bBk','bJp'].forEach(id=>document.getElementById(id).disabled=!on);
+function setReady(i,done){
+  const el=document.getElementById('rb'+i);if(!el)return;
+  el.textContent=done?(i===ME?'⭐나':label(i))+' ✅':(i===ME?'⭐나':label(i))+' ⏳';
+  el.className='rb'+(done?' done':'');
+}
+function addLog(msg){
+  const lb=document.getElementById('logEl');
+  const d=document.createElement('div');d.className='le';d.textContent=msg;
+  lb.appendChild(d);lb.scrollTop=lb.scrollHeight;
+}
+const clrLog=()=>document.getElementById('logEl').innerHTML='';
+function flashFx(col){const el=document.getElementById('fl');el.style.background=col;el.style.opacity='1';setTimeout(()=>el.style.opacity='0',130);}
+function glowPlayer(idx){
+  const mc=document.getElementById('meCard');
+  if(mc)mc.classList.toggle('glow',idx===ME);
+  for(let i=0;i<G.pc;i++){
+    if(i===ME)continue;
+    const el=document.getElementById('oc'+i);
+    if(el){const dead=!isHunter(i)&&!G.alive[i];el.className='oc'+(i===idx?' glow':'')+(dead?' dead':'');}
+  }
+}
+function currentTurnBonusText(){
+  const hb=pct(hunterBonusRate());
+  const rb=pct(runnerBonusRate());
+  return 'TURNOVER · 헌터 조기승 <b>'+hb+'</b> · 러너 생존 <b>'+rb+'</b> · 수수료 <b>'+matchFeeRateText()+'</b>';
+}
+function updateTurnBar(){
+  document.getElementById('tnum').textContent=G.turn;
+  document.getElementById('ttot').textContent='/ '+G.turns+'턴';
+  document.getElementById('g-turn-top').textContent='턴 '+G.turn+'/'+G.turns;
+  document.getElementById('pfill').style.width=((G.turn-1)/G.turns*100)+'%';
+  const mini=document.getElementById('turnBonusMini');
+  if(mini)mini.innerHTML=currentTurnBonusText();
+}
+
+/* ══ GAME START ══ */
+function initPos(){
+  const slots=[0,1,2,3];
+  G.pos[ME]=2;
+  const rem=slots.filter(v=>v!==2);
+  for(let i=0;i<G.pc;i++){
+    if(i===ME)continue;
+    const idx=Math.floor(Math.random()*rem.length);
+    G.pos[i]=rem.splice(idx,1)[0];
+  }
+}
+function startGame(){
+  sfx('start');initPos();
+  G.alive=[true,true,true,true];G.moves=[null,null,null,null];G.turn=1;G.choosePly=0;
+  const autoBtn=document.getElementById('autoBtn');
+  if(autoBtn){autoBtn.classList.toggle('on',AUTO_MODE);autoBtn.textContent=AUTO_MODE?'자동중':'자동실행';}
+  document.getElementById('meEmoji').textContent=emoji(ME);
+  buildOthersRow();buildChars();buildReadyBadges();
+  clrLog();addLog('게임시작 · 베팅 '+Math.min(G.bet,G.balances[ME])+'코인');
+  showSc('S1');updateProfileUI();
+  updateArena();updateMeCard();updateOthers();updateTurnBar();
+  setTimeout(nextChooser,350);
+}
+
+/* ══ TURN FLOW ══ */
+function nextChooser(){
+  clearActionTimer();
+  for(let i=G.choosePly;i<G.pc;i++){
+    if(!isHunter(i)&&!G.alive[i]){G.moves[i]='STAY';setReady(i,true);G.choosePly=i+1;continue;}
+    G.choosePly=i;
+    const isCPU=AUTO_MODE||(G.mode==='pvc'&&i!==ME);
+    if(isCPU){
+      setSbar((i===ME?'⭐나':label(i))+' ('+emoji(i)+') 선택 중...','info');
+      glowPlayer(i);setActs(false);
+      setTimeout(()=>{
+        if(G.choosePly!==i||G.moves[i]!==null)return;
+        G.moves[i]=cpuPick(i);setReady(i,true);sfx('ready');
+        G.choosePly=i+1;nextChooser();
+      },420+Math.random()*380);
+    }else{
+      const isMe=(i===ME);
+      setSbar(isMe?'⭐ 내 차례! 행동을 선택하세요':'턴 '+G.turn+' · '+label(i)+' '+emoji(i)+' 선택',isMe?'warn':'info');
+      glowPlayer(i);setActs(true);startHumanTimeout(i);
+    }
+    return;
+  }
+  setActs(false);glowPlayer(-1);clearActionTimer();
+  setTimeout(doReveal,260);
+}
+function act(a){
+  clearActionTimer();
+  sfx(a==='STAY'?'stay':a==='GO'?'go':a==='BACK'?'back':'jump');
+  setActs(false);
+  const i=G.choosePly;
+  G.moves[i]=a;setReady(i,true);sfx('ready');
+  G.choosePly=i+1;
+  setTimeout(nextChooser,280);
+}
+
+/* ══ REVEAL ══ */
+function doReveal(){
+  clearActionTimer();
+  const newPos=[...G.pos];
+  for(let i=0;i<G.pc;i++)if(isHunter(i)||G.alive[i])newPos[i]=mv(G.pos[i],G.moves[i]);
+  const parts=[];
+  for(let i=0;i<G.pc;i++)if(isHunter(i)||G.alive[i])parts.push((i===ME?'나':label(i))+emoji(i)+'='+G.moves[i]+' to '+spotName(newPos[i]));
+  addLog('턴'+G.turn+': '+parts.join(' · '));
+  setSbar('이동 중!','info');
+  applyMoveFX();
+  G.pos=newPos;
+  updateArena();updateMeCard();updateOthers();
+  setTimeout(()=>{
+    const hp=G.pos[G.hunterIdx];
+    const caught=[];
+    for(let i=0;i<G.pc;i++)if(!isHunter(i)&&G.alive[i]&&G.pos[i]===hp)caught.push(i);
+    if(caught.length){
+      caught.forEach(i=>{addLog('🎯 '+(i===ME?'나(!!)':label(i)+emoji(i))+' 탈락!');spawnSmoke(i);});
+      sfx('catch');flashFx('rgba(255,68,34,.28)');
+      const cfx=document.getElementById('cfx');
+      cfx.textContent=caught.includes(ME)?'나 잡혔다! 😱':'잡혔다! 🎯';cfx.style.display='block';
+      setTimeout(()=>{caught.forEach(i=>{G.alive[i]=false;});updateArena();updateMeCard();updateOthers();},120);
+      const anyAlive=G.alive.some((a,i)=>!isHunter(i)&&a&&!caught.includes(i));
+      if(!anyAlive){G.scores.h++;setTimeout(()=>{cfx.style.display='none';clearMoveFX();showResult('hunter');},1400);return;}
+      setTimeout(()=>{cfx.style.display='none';clearMoveFX();advanceTurn();},1200);
+    }else{setTimeout(()=>{clearMoveFX();advanceTurn();},120);}
+  },580);
+}
+function advanceTurn(){
+  if(G.turn>=G.turns){
+    sfx('esc');flashFx('rgba(34,170,255,.2)');
+    const surv=[];for(let i=0;i<G.pc;i++)if(!isHunter(i)&&G.alive[i])surv.push((i===ME?'나':label(i))+emoji(i));
+    addLog('🏃 탈출! '+surv.join(' ')+' 생존!');
+    G.scores.r++;setTimeout(()=>showResult('runner'),1200);return;
+  }
+  G.turn++;G.moves=[null,null,null,null];G.choosePly=0;
+  buildReadyBadges();updateTurnBar();
+  setTimeout(nextChooser,380);
+}
+
+/* ══ PAYOUT ══ */
+function calcPayout(winner){
+  const eff=[];for(let i=0;i<G.pc;i++)eff[i]=Math.min(G.bet,G.balances[i]);
+  const grossPot=eff.reduce((a,b)=>a+b,0);
+  const feeCoins=Math.round(grossPot*matchFeeRate());
+  const actualPot=grossPot-feeCoins;
+  let winners=[];
+  if(winner==='hunter'){winners=[G.hunterIdx];}
+  else{for(let i=0;i<G.pc;i++)if(!isHunter(i)&&G.alive[i])winners.push(i);}
+  const bonusRate=winner==='hunter'?hunterBonusRate(G.turn):runnerBonusRate(G.turns);
+  const bonusCoins=Math.round(actualPot*bonusRate);
+  // 연승 보너스 (Phase 1)
+  const meWonNow=winners.includes(0);
+  const streakBonus=meWonNow&&G.streak>=1?Math.min(Math.round(actualPot*Math.min(G.streak*.10,.50)),500):0;
+  // 연패 복구 보너스 (Phase 1)
+  const recovBonus=!meWonNow&&G.lossStreak>=2?Math.round(eff[0]*.20):0;
+  if(recovBonus>0){G.balances[0]=Math.max(10,G.balances[0]+recovBonus);}
+  const distributable=actualPot+bonusCoins;
+  const share=winners.length>0?Math.floor(distributable/winners.length):0;
+  const remainder=distributable-share*winners.length;
+  const rows=[];
+  for(let i=0;i<G.pc;i++){
+    const isW=winners.includes(i);
+    const gain=isW?share+(i===winners[0]?remainder:0):0;
+    const extra=(i===0&&isW)?streakBonus:0;
+    if(extra>0&&i===0){G.balances[0]=Math.max(10,G.balances[0]+extra);}
+    const net=gain-eff[i]+extra;
+    const newBal=Math.max(10,G.balances[i]+net);
+    rows.push({i,isW,bet:eff[i],net,newBal,fee:Math.round(feeCoins/G.pc)});G.balances[i]=newBal;
+  }
+  G.lastBonus={winner,bonusRate,bonusCoins,distributable,finishedTurn:G.turn,feeCoins,grossPot,netPot:actualPot,streakBonus,recovBonus};
+  return{rows,grossPot,actualPot,feeCoins,winners,share,bonusRate,bonusCoins,distributable,streakBonus,recovBonus};
+}
+
+/* ══ RESULT ══ */
+function showResult(winner){
+  const payout=calcPayout(winner);
+  showSc('S2');
+  const isHW=winner==='hunter';
+  document.getElementById('rico').textContent=isHW?'🎯':'🏃';
+  const rt=document.getElementById('rtit');
+  rt.textContent=isHW?'🦁 헌터 승리!':'🏃 러너 승리!';
+  rt.className='rtit '+(isHW?'hw':'rw');
+
+  const meWon=payout.winners.includes(ME);
+  if(meWon){G.streak+=1;G.lossStreak=0;}else{G.lossStreak+=1;G.streak=0;}
+  applyMissionProgress(winner);
+  // 연승/연패 배너 표시
+  const sb=document.getElementById('streakBanner');
+  const snum=document.getElementById('streakNum');
+  const slbl=document.getElementById('streakLbl');
+  const smsg=document.getElementById('streakMsg');
+  if(sb&&snum&&slbl&&smsg){
+    if(meWon&&G.streak>=2){
+      sb.style.display='flex';sb.className='streak-banner win-streak';
+      snum.className='streak-num w';snum.textContent=G.streak+'연승!';
+      slbl.textContent='🔥 연승 보너스 발동!';smsg.textContent='다음 판도 이기면 보너스가 더 커진다!';
+      sfx('coin');
+    }else if(!meWon&&G.lossStreak>=3){
+      sb.style.display='flex';sb.className='streak-banner loss-streak';
+      snum.className='streak-num l';snum.textContent=G.lossStreak+'연패';
+      slbl.textContent='💙 연패 복구 보너스!';smsg.textContent='다음 판 베팅금의 20% 자동 보전';
+    }else{sb.style.display='none';}
+  }
+
+  const meRow=payout.rows.find(r=>r.i===ME);
+  const bonusText='TURNOVER '+pct(payout.bonusRate)+' · +'+payout.bonusCoins+'P';
+  const feeText='운영수수료 '+payout.feeCoins+'P';
+  document.getElementById('rdesc').textContent=meWon
+    ?'⭐ 내가 이겼다! +'+meRow.net+'P 획득! · '+bonusText+' · '+feeText
+    :'😢 졌다... '+Math.abs(meRow.net)+'P 손실 · '+bonusText+' · '+feeText;
+
+  const tb=document.getElementById('ptable');
+  let html=`<div class="pt-head"><div>플레이어</div><div class="right">베팅</div><div class="right">결과</div><div class="right">잔액</div></div>`;
+  payout.rows.forEach(r=>{
+    const isMe=r.i===ME;
+    const nm=(isMe?'⭐나':label(r.i))+' '+emoji(r.i);
+    const roleStr=isHunter(r.i)?'🦁':'🏃';
+    const netStr=r.net>=0?`<span class="plus">+${r.net}</span>`:`<span class="minus">${r.net}</span>`;
+    const winBadge=r.isW?'<span class="win-tag">WIN</span>':'';
+    html+=`<div class="pt-row${isMe?' me-row':''}${r.isW?' win':''}"><div class="pt-cell">${nm} ${roleStr} ${winBadge}</div><div class="pt-cell right">${r.bet}</div><div class="pt-cell right">${netStr}</div><div class="pt-cell right">${r.newBal}</div></div>`;
+  });
+  html+=`<div class="pot-row"><span style="color:var(--mu)">💰 총 베팅 팟</span><span style="color:var(--gold)">${payout.grossPot} P</span></div>`;
+  html+=`<div class="pot-row"><span style="color:var(--mu)">🏦 플랫폼 수수료 (${matchFeeRateText()})</span><span style="color:#ff9977">-${payout.feeCoins} P</span></div>`;
+  html+=`<div class="pot-row"><span style="color:var(--mu)">⚡ TURNOVER ${pct(payout.bonusRate)}</span><span style="color:#44cc77">+${payout.bonusCoins} P</span></div>`;
+  html+=`<div class="pot-row"><span style="color:var(--mu)">🏆 최종 분배</span><span style="color:var(--gold)">${payout.distributable} P</span></div>`;
+  if(payout.streakBonus)html+=`<div class="pot-row"><span style="color:var(--mu)">🔥 연승 보너스</span><span style="color:var(--gold)">+${payout.streakBonus} P</span></div>`;
+  if(payout.recovBonus)html+=`<div class="pot-row"><span style="color:var(--mu)">💙 연패 복구</span><span style="color:#88ccff">+${payout.recovBonus} P</span></div>`;
+  if(payout.winners.length>1)html+=`<div class="pot-row"><span style="color:var(--mu)">👥 1인당</span><span style="color:#44cc77">${payout.share} P</span></div>`;
+  tb.innerHTML=html;
+  updateProfileUI();refreshTopEconomyUI();sfx('coin');
+}
+
+/* ══ REMATCH ══ */
+function rematch(type){
+  sfx('start');
+  if(type==='new'){showSc('S0');return;}
+  if(type==='bet'){goTabByName('settings');return;}
+  if(type==='swap'){G.hunterIdx=(G.hunterIdx+1)%G.pc;}
+  initPos();G.alive=[true,true,true,true];G.moves=[null,null,null,null];G.turn=1;G.choosePly=0;
+  document.getElementById('cfx').style.display='none';
+  buildOthersRow();buildChars();buildReadyBadges();
+  clrLog();addLog('재대결 · 베팅 '+Math.min(G.bet,G.balances[ME])+'코인');
+  showSc('S1');updateProfileUI();updateArena();updateMeCard();updateOthers();updateTurnBar();
+  setTimeout(nextChooser,350);
+}
+
+
+/* ══ MODAL ══ */
+function showModal(ico,ttl,coin,sub,btnTxt){
+  document.getElementById('modalIco').textContent=ico;
+  document.getElementById('modalTtl').textContent=ttl;
+  document.getElementById('modalCoin').textContent=coin||'';
+  document.getElementById('modalSub').textContent=sub;
+  document.getElementById('modalBtn').textContent=btnTxt||'확인';
+  document.getElementById('modalBg').classList.add('on');
+}
+function closeModal(e){if(e&&e.target!==document.getElementById('modalBg'))return;document.getElementById('modalBg').classList.remove('on');}
+
+/* ══ INVITE ══ */
+function showInvite(){
+  const codes=['TT-'+Math.floor(1000+Math.random()*9000)];
+  document.getElementById('inviteCode').textContent='TT-'+Math.floor(1000+Math.random()*9000);
+  document.getElementById('inviteBg').classList.add('on');
+}
+function closeInvite(e){if(e&&e.target!==document.getElementById('inviteBg'))return;document.getElementById('inviteBg').classList.remove('on');}
+function copyInvite(){
+  const code=document.getElementById('inviteCode').textContent;
+  if(navigator.clipboard)navigator.clipboard.writeText('턴태그 술래잡기 초대! 코드: '+code).catch(()=>{});
+  showModal('✅','복사 완료','','친구에게 코드를 붙여넣기해서 공유하자!');
+}
+function shareInvite(){
+  const code=document.getElementById('inviteCode').textContent;
+  const txt='턴태그 술래잡기 같이 하자! 코드: '+code;
+  if(navigator.share){navigator.share({title:'턴태그 술래잡기',text:txt}).catch(()=>{});}
+  else{if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(()=>{});showModal('📤','공유 준비 완료','','텍스트가 복사됐다. 카카오나 문자에 붙여넣기 해서 공유하면 된다!');}
+  document.getElementById('inviteBg').classList.remove('on');
+}
+
+/* ══ ONBOARDING ══ */
+function closeOnboard(){document.getElementById('onboardBg').classList.remove('on');try{localStorage.setItem('tt_v2_ob','1');}catch(e){}}
+function checkOnboard(){try{if(!localStorage.getItem('tt_v2_ob'))document.getElementById('onboardBg').classList.add('on');}catch(e){document.getElementById('onboardBg').classList.add('on');}}
+
+/* ══ MISSIONS ══ */
+function getMissionProg(m){return Math.min(G[m.key]||0,m.max);}
+function renderMissions(cid){
+  const el=document.getElementById(cid);if(!el)return;el.innerHTML='';
+  MISSION_DEF.forEach(m=>{
+    const prog=getMissionProg(m);const done=prog>=m.max;const pct2=Math.round(prog/m.max*100);
+    const d=document.createElement('div');d.className='mission-item'+(done?' done':'');
+    d.innerHTML='<span class="mission-ico">'+m.ico+'</span><div class="mission-info"><div class="mission-title">'+m.txt+'</div><div class="mission-prog-bar"><div class="mission-prog-fill" style="width:'+pct2+'%"></div></div></div><span class="mission-reward">+'+m.reward+'P</span><span class="mission-chk">'+(done?'✅':'⏳')+'</span>';
+    el.appendChild(d);
+  });
+}
+
+/* ══ TAB / MISC ══ */
+let AUTO_MODE=false;
+const TAB_MAP={home:'S0',game:'SG',settings:'SB',me:'SM'};
+function setTabActive(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  const m={home:'tab-home',game:'tab-game',settings:'tab-settings',me:'tab-me'};
+  const el=document.getElementById(m[name]);if(el)el.classList.add('on');
+}
+function goTabByName(name){
+  const target=TAB_MAP[name];if(!target)return;
+  showSc(target);setTabActive(name);
+  if(name==='me')updateProfileUI();
+  else if(name==='game'||name==='settings'){syncMiniSettings();updatePotDisplay();}
+}
+function startGameFromSettings(){
+  if(G.role==='hunter')G.hunterIdx=0;
+  else if(G.role==='runner')G.hunterIdx=Math.floor(Math.random()*(G.pc-1))+1;
+  else G.hunterIdx=Math.floor(Math.random()*G.pc);
+  startGame();setTabActive('game');
+}
+function toggleAuto(){
+  AUTO_MODE=!AUTO_MODE;
+  const btn=document.getElementById('autoBtn');
+  if(btn){btn.classList.toggle('on',AUTO_MODE);btn.textContent=AUTO_MODE?'자동중':'자동실행';}
+  if(AUTO_MODE&&document.getElementById('S1')?.classList.contains('on')){clearActionTimer();nextChooser();}
+}
+function syncMiniSettings(){
+  const grid=document.getElementById('miniSettingsGrid');if(!grid)return;
+  const modeMap={pvp:'전원 인간',pvc:'나 vs CPU'};
+  const roleMap={random:'랜덤',hunter:'헌터',runner:'러너'};
+  const diffMap={easy:'쉬움',normal:'보통',hard:'어려움'};
+  const mtMap={normal:'일반전', ranked:'랭킹전', tournament:'토너먼트'};
+  grid.innerHTML=`<div class="mini-pill">인원수 ${G.pc}인</div><div class="mini-pill">모드 ${modeMap[G.mode]||G.mode}</div><div class="mini-pill">역할 ${roleMap[G.role]||G.role}</div><div class="mini-pill">턴수 ${G.turns}턴</div><div class="mini-pill">AI ${diffMap[G.diff]||G.diff}</div><div class="mini-pill">베팅 ${G.bet}코인</div><div class="mini-pill">타입 ${mtMap[G.matchType]||G.matchType}</div><div class="mini-pill">수수료 ${matchFeeRateText()}</div>`;
+}
+
+function matchFeeRate(){
+  if(G.matchType==='ranked' || G.matchType==='tournament') return 0.10;
+  return 0;
+}
+function matchFeeRateText(){
+  return Math.round(matchFeeRate()*100)+'%';
+}
+function refreshTopEconomyUI(){
+  const p=document.getElementById('topPointChip');
+  const g=document.getElementById('topGemChip');
+  const s=document.getElementById('topStreakChip');
+  if(p) p.textContent='💰 '+G.balances[ME]+' P';
+  if(g) g.textContent='🎟️ 토큰 '+G.gems;
+  if(s) s.textContent='🔥 연승 '+G.streak;
+}
+function claimDailyReward(){
+  if(G.dailyClaimed){showModal('⏰','이미 받음','','오늘 일일 보상은 이미 받았다. 내일 다시 오면 또 준다!');return;}
+  G.dailyClaimed=true;G.balances[ME]+=200;
+  addLog('🎁 일일 보상 +200P');
+  const btn=document.getElementById('dailyBtn');if(btn){btn.disabled=true;btn.textContent='오늘 완료 ✅';}
+  refreshTopEconomyUI();updateProfileUI();
+  showModal('🎁','일일 보상!','💰 +200 P','오늘의 출석 보상을 받았다. 매일 접속하면 꾸준히 쌓인다!');
+  sfx('coin');
+}
+function watchAdReward(){
+  G.adsWatched+=1;G.balances[ME]+=100;
+  addLog('📺 광고 보상 +100P');
+  refreshTopEconomyUI();updateProfileUI();
+  renderMissions('missionList');renderMissions('missionListSM');
+  showModal('📺','광고 보상!','💰 +100 P','광고 시청으로 100P를 받았다. 하루 최대 5회까지 받을 수 있다.');
+  sfx('coin');
+}
+function buyCoins(amount,price){
+  G.balances[ME]+=amount;G.gems+=Math.max(1,Math.floor(amount/1000));
+  addLog('🛍️ 코인 구매 +'+amount+'P');
+  refreshTopEconomyUI();updateProfileUI();
+  showModal('🛍️','구매 완료 (프로토타입)','💰 +'+amount+' P','실제 서비스에서는 '+price.toLocaleString()+'원이 결제됩니다. 현재는 테스트 지급입니다.');
+  sfx('coin');
+}
+function applyMissionProgress(winner){
+  G.gamesPlayed+=1;
+  if(winner==='hunter'&&isHunter(ME))G.hunterWins+=1;
+  if(winner==='runner'&&!isHunter(ME))G.runnerWins+=1;
+  renderMissions('missionList');renderMissions('missionListSM');
+}
+
+function updateProfileUI(){
+  const rankEl=document.getElementById('myRank');
+  const pointEl=document.getElementById('myPoint');
+  const hEl=document.getElementById('myHunterWins');
+  const rEl=document.getElementById('myRunnerWins');
+  if(rankEl)rankEl.textContent='#'+(27 - Math.min(10, Math.floor(G.streak/2)));
+  if(pointEl)pointEl.textContent=`${G.balances[ME]} P`;
+  if(hEl)hEl.textContent=`${G.hunterWins}`;
+  if(rEl)rEl.textContent=`${G.runnerWins}`;
+  refreshTopEconomyUI();
+}
+
+updatePotDisplay();
+syncMiniSettings();
+updateProfileUI();
+renderMissions('missionList');
+renderMissions('missionListSM');
+checkOnboard();
+</script>
+
+<div class="tabbar" id="tabbar">
+  <div class="tab on" id="tab-home" onclick="goTabByName('home')">🏠<span>홈</span></div>
+  <div class="tab" id="tab-game" onclick="goTabByName('game')">🎮<span>게임</span></div>
+  <div class="tab" id="tab-settings" onclick="goTabByName('settings')">⚙️<span>게임설정</span></div>
+  <div class="tab" id="tab-me" onclick="goTabByName('me')">👤<span>내정보</span></div>
+</div>
+</body>
+</html>
