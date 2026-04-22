@@ -556,6 +556,90 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
 .mission-reward{font-size:clamp(10px,2.7vw,12px);color:var(--gold);white-space:nowrap;flex-shrink:0}
 .mission-chk{font-size:13px;flex-shrink:0}
 
+/* ── SKILL ROW ── */
+.skill-row{width:100%;display:flex;gap:6px;align-items:stretch}
+.skill-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:7px 4px;border-radius:8px;border:2px solid;cursor:pointer;transition:all .15s;
+  font-family:'DotGothic16','Courier New',monospace;position:relative;overflow:hidden;
+}
+.skill-btn:active:not(:disabled){transform:scale(.94)}
+.skill-btn:disabled{opacity:.28;cursor:not-allowed}
+.skill-btn.hunter-skill{border-color:#ff7755;color:#ff9977;background:rgba(255,80,40,.07)}
+.skill-btn.hunter-skill:not(:disabled):hover{background:rgba(255,80,40,.18)}
+.skill-btn.runner-skill{border-color:#44aaff;color:#88ccff;background:rgba(68,136,255,.07)}
+.skill-btn.runner-skill:not(:disabled):hover{background:rgba(68,136,255,.18)}
+.skill-btn.skill-ready{animation:skillPulse 1.2s ease-in-out infinite}
+@keyframes skillPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 14px currentColor}}
+.skill-ico{font-size:min(17px,4.5vw);line-height:1}
+.skill-name{font-size:min(9px,2.4vw);line-height:1}
+.skill-cd{font-size:min(8px,2.2vw);color:var(--mu);line-height:1}
+.skill-active-badge{
+  position:absolute;top:2px;right:3px;
+  font-size:min(7px,2vw);padding:1px 3px;border-radius:3px;
+  background:rgba(68,204,119,.25);color:#88ee99;border:1px solid rgba(68,204,119,.5);
+}
+
+/* ── MAP EVENT BANNER ── */
+.event-banner{
+  width:100%;padding:8px 12px;border-radius:9px;
+  display:none;align-items:center;gap:8px;
+  background:rgba(255,170,0,.08);border:2px solid rgba(255,170,0,.5);
+  animation:eventSlide .35s ease;
+}
+.event-banner.on{display:flex}
+@keyframes eventSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.event-ico-big{font-size:24px;flex-shrink:0}
+.event-info{flex:1;min-width:0}
+.event-name{font-size:clamp(11px,3.2vw,13px);color:#ffcc44}
+.event-desc{font-size:clamp(9px,2.5vw,11px);color:var(--mu);margin-top:1px}
+.event-turns{font-size:clamp(9px,2.3vw,11px);color:#ffaa33;white-space:nowrap;flex-shrink:0}
+
+/* ── SEASON SCORE ── */
+.season-chip{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;
+  background:rgba(80,180,255,.08);border:1px solid rgba(80,180,255,.3);color:#88ccff;font-size:10px
+}
+.sp-badge{
+  display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;
+  background:rgba(80,180,255,.12);border:1px solid rgba(80,180,255,.4);color:#88ccff;font-size:9px;
+  letter-spacing:.5px;margin-left:3px;
+}
+
+/* ── BLUFF HINT ── */
+.bluff-row{width:100%;display:flex;gap:5px;justify-content:center;flex-wrap:wrap;min-height:22px}
+.bluff-chip{
+  font-size:min(9px,2.4vw);padding:2px 7px;border-radius:5px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--mu);
+  transition:all .25s;
+}
+.bluff-chip.fake{color:#ff9977;border-color:rgba(255,120,60,.4);background:rgba(255,80,40,.07)}
+.bluff-chip.confirm{color:#88ee99;border-color:rgba(68,204,119,.4);background:rgba(68,204,119,.07)}
+
+/* ── SEASON RANK BADGE ── */
+.season-tier{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:999px;
+  font-size:10px;border:1px solid;
+}
+.tier-bronze{background:rgba(180,100,30,.12);color:#c87832;border-color:rgba(180,100,30,.4)}
+.tier-silver{background:rgba(180,180,190,.1);color:#a8b0c0;border-color:rgba(160,170,190,.4)}
+.tier-gold{background:rgba(255,204,0,.1);color:var(--gold);border-color:rgba(255,204,0,.4)}
+.tier-diamond{background:rgba(80,200,255,.1);color:#66ddff;border-color:rgba(80,200,255,.4)}
+
+/* ── HIGHLIGHT SHARE ── */
+.highlight-box{
+  width:100%;background:rgba(255,204,0,.05);border:1px dashed rgba(255,204,0,.3);
+  border-radius:9px;padding:11px 14px;text-align:center;
+}
+.highlight-box .h-ttl{font-size:clamp(11px,3vw,13px);color:var(--gold);margin-bottom:6px}
+.highlight-share-btn{
+  width:100%;padding:9px;border-radius:7px;border:none;
+  background:linear-gradient(90deg,rgba(34,170,255,.2),rgba(68,204,119,.2));
+  color:var(--tx);font-family:'DotGothic16','Courier New',monospace;font-size:11px;cursor:pointer;
+  border:1px solid rgba(34,170,255,.3);margin-top:5px;
+}
+.highlight-share-btn:active{transform:scale(.97)}
+
 </style>
 </head>
 <body>
@@ -568,7 +652,9 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
     <div class="onboard-step"><div class="onboard-num">1</div><div class="onboard-txt">4개 포탈에서 🦁헌터 1명이 🏃러너들을 추격합니다</div></div>
     <div class="onboard-step"><div class="onboard-num">2</div><div class="onboard-txt">매 턴 <b>STAY · GO · BACK · JUMP</b> 중 하나를 선택하면 동시에 공개됩니다</div></div>
     <div class="onboard-step"><div class="onboard-num">3</div><div class="onboard-txt">헌터와 같은 칸에 있으면 러너 탈락! 모두 잡으면 헌터 승, 버티면 러너 승</div></div>
-    <div class="onboard-step"><div class="onboard-num">4</div><div class="onboard-txt">⚡ TURNOVER: 빠른 종료 = 헌터 보너스↑ · 오래 생존 = 러너 보너스↑</div></div>
+    <div class="onboard-step"><div class="onboard-num">4</div><div class="onboard-txt">🔍 <b>헌터 스킬</b>: 탐지 (러너 위치 힌트) · 🛡 <b>러너 스킬</b>: 방어막 (잡히기 1회 무효)</div></div>
+    <div class="onboard-step"><div class="onboard-num">5</div><div class="onboard-txt">🗺 매 3턴마다 <b>맵 이벤트</b> 발동! 포탈 봉쇄·방향 반전·안개 등 변수가 추가됩니다</div></div>
+    <div class="onboard-step"><div class="onboard-num">6</div><div class="onboard-txt">🏅 게임 결과로 <b>시즌 SP</b> 획득! 브론즈→실버→골드→다이아 티어 도전!</div></div>
     <button class="onboard-start" onclick="closeOnboard()">🚀 시작하기!</button>
   </div>
 </div>
@@ -618,7 +704,7 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
 
   <div class="econ-bar">
     <div class="coin-chip" id="topPointChip">💰 1000 P</div>
-    <div class="coin-chip" id="topGemChip">🎟️ 토큰 0</div>
+    <div class="season-chip" id="topSPChip">🏅 시즌 0 SP</div>
     <div class="coin-chip" id="topStreakChip">🔥 연승 0</div>
   </div>
 
@@ -667,19 +753,12 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
       <button class="ghost-btn" onclick="watchAdReward()">광고 보고 +100P</button>
     </div>
     <div class="action-card">
-      <div class="home-ttl">🛍️ 코인 상점</div>
-      <div class="shop-grid">
-        <div class="shop-item">
-          <div class="shop-name">스타터 팩</div>
-          <div class="shop-meta">1,000P · 1,900원</div>
-          <button class="shop-buy" onclick="buyCoins(1000,1900)">구매</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-name">배틀 팩</div>
-          <div class="shop-meta">5,500P · 8,900원</div>
-          <button class="shop-buy" onclick="buyCoins(5500,8900)">구매</button>
-        </div>
-      </div>
+      <div class="home-ttl">🏅 시즌 시스템</div>
+      <div class="fee-note">매 게임 결과로 시즌 포인트(SP)를 획득합니다. 시즌 티어에 따라 전용 스킨/이펙트가 해금됩니다.</div>
+      <div style="height:7px"></div>
+      <button class="action-btn" onclick="showSeasonInfo()">시즌 현황 보기</button>
+      <div style="height:6px"></div>
+      <button class="ghost-btn" onclick="showInvite()">🔗 친구 초대 +150SP</button>
     </div>
   </div>
 
@@ -747,15 +826,19 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
     <button class="b on" data-g="diff" onclick="pick(this,'diff','normal')">🎯 보통 (페이크AI)</button>
     <button class="b" data-g="diff" onclick="pick(this,'diff','hard')">💀 어려움 (심리AI)</button>
   </div></div>
-  <div class="pnl"><div class="plbl">대전 타입</div><div class="bg"><button class="b on" data-g="matchType" onclick="pick(this,'matchType','normal')">일반전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','ranked')">랭킹전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','tournament')">토너먼트</button></div></div><div class="pnl"><div class="plbl">베팅 코인</div><div class="bg">
-    <button class="b" data-g="bet" onclick="pickBetBtn(this,50)">50</button>
-    <button class="b on" data-g="bet" onclick="pickBetBtn(this,100)">100</button>
-    <button class="b" data-g="bet" onclick="pickBetBtn(this,200)">200</button>
-    <button class="b" data-g="bet" onclick="pickBetBtn(this,500)">500</button>
+  <div class="pnl"><div class="plbl">대전 타입</div><div class="bg"><button class="b on" data-g="matchType" onclick="pick(this,'matchType','normal')">일반전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','ranked')">랭킹전</button><button class="b" data-g="matchType" onclick="pick(this,'matchType','tournament')">토너먼트</button></div></div><div class="pnl"><div class="plbl">참가 포인트 (시즌 점수 기반)</div><div class="bg">
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,50)">50P</button>
+    <button class="b on" data-g="bet" onclick="pickBetBtn(this,100)">100P</button>
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,200)">200P</button>
+    <button class="b" data-g="bet" onclick="pickBetBtn(this,500)">500P</button>
+  </div></div>
+  <div class="pnl"><div class="plbl">🗺 맵 이벤트 (심리전 강화)</div><div class="bg">
+    <button class="b on" data-g="mapEventOn" onclick="pick(this,'mapEventOn',true)">🎭 이벤트 ON</button>
+    <button class="b" data-g="mapEventOn" onclick="pick(this,'mapEventOn',false)">OFF</button>
   </div></div>
   <div class="pot-display">
-    <div class="pot-lbl">예상 팟 (TOTAL POT)</div>
-    <div class="pot-amt" id="potAmt">300 코인</div>
+    <div class="pot-lbl">예상 팟 (시즌 경쟁 점수)</div>
+    <div class="pot-amt" id="potAmt">300 P</div>
     <div style="font-size:clamp(10px,2.7vw,12px);color:var(--mu);margin-top:3px" id="potBreakdown">100 × 3인 = 300</div>
   </div>
   <button class="bstart" onclick="startGameFromSettings()">🎮 게임 시작</button>
@@ -772,6 +855,8 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
     <div class="home-ttl">👤 내정보</div>
     <div class="profile-stat"><span>내 랭킹</span><b id="myRank">#27</b></div>
     <div class="profile-stat"><span>보유 포인트</span><b id="myPoint">1000 P</b></div>
+    <div class="profile-stat"><span>🏅 시즌 SP</span><b id="mySP">0 SP</b></div>
+    <div class="profile-stat"><span>🎖 시즌 티어</span><b id="myTier"><span class="season-tier tier-bronze">브론즈</span></b></div>
     <div class="profile-stat"><span>🔥 현재 연승</span><b id="myStreak">0</b></div>
     <div class="profile-stat"><span>🎮 총 게임 수</span><b id="myGames">0판</b></div>
     <div class="profile-stat"><span>🦁 헌터 승리</span><b id="myHunterWins">0</b></div>
@@ -840,6 +925,19 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
     </div>
   </div>
 
+  <!-- MAP EVENT BANNER -->
+  <div class="event-banner" id="eventBanner">
+    <span class="event-ico-big" id="eventIco">🌫</span>
+    <div class="event-info">
+      <div class="event-name" id="eventName">안개 턴!</div>
+      <div class="event-desc" id="eventDesc">이번 턴 상대 위치가 숨겨집니다</div>
+    </div>
+    <span class="event-turns" id="eventTurns">1턴</span>
+  </div>
+
+  <!-- BLUFF HINT ROW -->
+  <div class="bluff-row" id="bluffRow"></div>
+
   <!-- STATUS ROW -->
   <div class="sbar info action-bar" id="sbar">
     <span id="sbarText">준비 중...</span>
@@ -867,7 +965,20 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
         </button>
       </div>
     </div>
-    <!-- CENTER: PLAYER-STRIP -->
+    <!-- SKILL ROW (below agrid) -->
+    <div class="skill-row" id="skillRow" style="margin-top:5px">
+      <button class="skill-btn hunter-skill" id="hunterSkillBtn" onclick="useHunterSkill()" disabled>
+        <span class="skill-ico">🔍</span>
+        <span class="skill-name">탐지</span>
+        <span class="skill-cd" id="hunterSkillCd">준비중</span>
+      </button>
+      <button class="skill-btn runner-skill" id="runnerSkillBtn" onclick="useRunnerSkill()" disabled>
+        <span class="skill-ico">🛡</span>
+        <span class="skill-name">방어막</span>
+        <span class="skill-cd" id="runnerSkillCd">준비중</span>
+        <span class="skill-active-badge" id="shieldBadge" style="display:none">ON</span>
+      </button>
+    </div>
     <div class="player-strip-col">
       <div class="col-label">PLAYER-STRIP</div>
       <div class="player-strip" id="meCard">
@@ -914,8 +1025,13 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
   <div class="rematch-row">
     <button class="rb2 p" onclick="rematch('same')">🔄 재대결</button>
     <button class="rb2" onclick="rematch('swap')">↔ 역할 교체</button>
-    <button class="rb2" onclick="rematch('bet')">💰 베팅 변경</button>
+    <button class="rb2" onclick="rematch('bet')">💰 포인트 변경</button>
     <button class="rb2" onclick="rematch('new')">🆕 새 게임</button>
+  </div>
+  <div class="highlight-box">
+    <div class="h-ttl">🎬 하이라이트 공유</div>
+    <div style="font-size:10px;color:var(--mu)" id="highlightText">결과를 친구에게 공유하세요!</div>
+    <button class="highlight-share-btn" onclick="shareHighlight()">📤 하이라이트 공유하기</button>
   </div>
   <div style="font-size:10px;color:var(--bdr);text-align:center">턴태그 술래잡기 · TURN TAG</div>
 </div>
@@ -923,9 +1039,12 @@ hr{border:none;border-top:1px solid var(--bdr);width:100%}
 <script>
 /* ══ CONSTANTS ══ */
 const MISSION_DEF=[
-  {id:'play3',   ico:'🎮', txt:'게임 3판 플레이',   reward:150, max:3, key:'gamesPlayed'},
-  {id:'hunter1', ico:'🦁', txt:'헌터로 1승 달성',   reward:120, max:1, key:'hunterWins'},
-  {id:'ad1',     ico:'📺', txt:'광고 보상 1회 받기', reward:50,  max:1, key:'adsWatched'},
+  {id:'play3',   ico:'🎮', txt:'게임 3판 플레이',     reward:150, max:3, key:'gamesPlayed'},
+  {id:'hunter1', ico:'🦁', txt:'헌터로 1승 달성',     reward:120, max:1, key:'hunterWins'},
+  {id:'runner3', ico:'🏃', txt:'러너로 3판 생존',     reward:100, max:3, key:'runnerWins'},
+  {id:'skill3',  ico:'🔍', txt:'스킬 3회 사용',       reward:80,  max:3, key:'skillsUsed'},
+  {id:'event1',  ico:'🗺', txt:'맵 이벤트 1회 경험', reward:60,  max:1, key:'eventsExperienced'},
+  {id:'ad1',     ico:'📺', txt:'광고 보상 1회 받기',  reward:50,  max:1, key:'adsWatched'},
 ];
 
 const SPOT_NAMES = ['Solar Temple','크리스탈 오벨리스크','Starforge','루나 가든'];
@@ -947,12 +1066,20 @@ const HUNTER_ICON = '🦁';
 
 /* ══ STATE ══ */
 const G = {
-  pc:3,mode:'pvp',role:'random',turns:5,diff:'normal',
+  pc:3,mode:'pvp',role:'random',turns:5,diff:'normal',mapEventOn:true,
   turn:1,hunterIdx:0,
   pos:[0,0,0,0],alive:[true,true,true,true],
   moves:[null,null,null,null],choosePly:0,
-  bet:100,balances:[1000,1000,1000,1000],matchType:'normal',gems:0,adsWatched:0,dailyClaimed:false,gamesPlayed:0,hunterWins:0,runnerWins:0,streak:0,lossStreak:0,
-  scores:{h:0,r:0},lastBonus:null,actionTimer:null,lossStreak:0,
+  bet:100,balances:[1000,1000,1000,1000],matchType:'normal',gems:0,adsWatched:0,dailyClaimed:false,
+  gamesPlayed:0,hunterWins:0,runnerWins:0,streak:0,lossStreak:0,
+  scores:{h:0,r:0},lastBonus:null,actionTimer:null,
+  // SKILL SYSTEM
+  hunterScanCd:0,runnerShieldCd:0,shieldActive:false,skillsUsed:0,
+  // MAP EVENT SYSTEM
+  currentEvent:null,blockedPortal:-1,swapMoves:false,fogActive:false,doubleJumpActive:false,
+  eventsExperienced:0,
+  // SEASON SCORE
+  seasonSP:0,
 };
 const ME = 0;
 
@@ -1012,7 +1139,22 @@ function updatePotDisplay(){
 function goHome(){goTabByName('home');}
 
 /* ══ MOVEMENT + AI ══ */
-const mv=(pos,act)=>act==='STAY'?pos:act==='GO'?(pos+1)%4:act==='BACK'?(pos+3)%4:(pos+2)%4;
+const mvBase=(pos,act)=>act==='STAY'?pos:act==='GO'?(pos+1)%4:act==='BACK'?(pos+3)%4:(pos+2)%4;
+function mv(pos,act){
+  // 포탈 봉쇄 이벤트: 봉쇄된 포탈로 이동 시 STAY로 처리
+  if(G.blockedPortal>=0){
+    const dest=mvBase(pos,act);
+    if(dest===G.blockedPortal) return pos;
+  }
+  // GO/BACK 반전 이벤트
+  if(G.swapMoves){
+    if(act==='GO') act='BACK';
+    else if(act==='BACK') act='GO';
+  }
+  // 더블 점프: JUMP가 2칸 이동
+  if(G.doubleJumpActive && act==='JUMP') return (pos+2)%4;
+  return mvBase(pos,act);
+}
 const dist=(a,b)=>{const d=Math.abs(a-b);return Math.min(d,4-d);};
 const HUMAN_TIMEOUT=3000;
 const randomAct=()=>['STAY','GO','BACK','JUMP'][Math.floor(Math.random()*4)];
@@ -1238,13 +1380,18 @@ function initPos(){
 function startGame(){
   sfx('start');initPos();
   G.alive=[true,true,true,true];G.moves=[null,null,null,null];G.turn=1;G.choosePly=0;
+  // SKILL RESET
+  G.hunterScanCd=0;G.runnerShieldCd=0;G.shieldActive=false;
+  // EVENT RESET
+  G.currentEvent=null;G.blockedPortal=-1;G.swapMoves=false;G.fogActive=false;G.doubleJumpActive=false;
+  clearEventBanner();
   const autoBtn=document.getElementById('autoBtn');
   if(autoBtn){autoBtn.classList.toggle('on',AUTO_MODE);autoBtn.textContent=AUTO_MODE?'자동중':'자동실행';}
   document.getElementById('meEmoji').textContent=emoji(ME);
   buildOthersRow();buildChars();buildReadyBadges();
-  clrLog();addLog('게임시작 · 베팅 '+Math.min(G.bet,G.balances[ME])+'코인');
+  clrLog();addLog('게임시작 · 참가 '+Math.min(G.bet,G.balances[ME])+'P');
   showSc('S1');updateProfileUI();
-  updateArena();updateMeCard();updateOthers();updateTurnBar();
+  updateArena();updateMeCard();updateOthers();updateTurnBar();updateSkillUI();
   setTimeout(nextChooser,350);
 }
 
@@ -1267,6 +1414,8 @@ function nextChooser(){
       const isMe=(i===ME);
       setSbar(isMe?'⭐ 내 차례! 행동을 선택하세요':'턴 '+G.turn+' · '+label(i)+' '+emoji(i)+' 선택',isMe?'warn':'info');
       glowPlayer(i);setActs(true);startHumanTimeout(i);
+      // 내 턴일 때: 블러핑 힌트 표시 + 스킬 버튼 활성화
+      if(isMe){showBluffHints();updateSkillUI();}
     }
     return;
   }
@@ -1286,6 +1435,8 @@ function act(a){
 /* ══ REVEAL ══ */
 function doReveal(){
   clearActionTimer();
+  // 블러핑 힌트 초기화
+  clearBluffRow();
   const newPos=[...G.pos];
   for(let i=0;i<G.pc;i++)if(isHunter(i)||G.alive[i])newPos[i]=mv(G.pos[i],G.moves[i]);
   const parts=[];
@@ -1300,6 +1451,23 @@ function doReveal(){
     const caught=[];
     for(let i=0;i<G.pc;i++)if(!isHunter(i)&&G.alive[i]&&G.pos[i]===hp)caught.push(i);
     if(caught.length){
+      // 방어막 체크: ME가 잡혔고 쉴드 활성 시 1회 무효
+      const shieldSaved=caught.includes(ME)&&G.shieldActive;
+      if(shieldSaved){
+        G.shieldActive=false;
+        addLog('🛡 방어막 발동! 탈락 무효!');
+        sfx('ready');flashFx('rgba(68,136,255,.3)');
+        const shieldCaught=caught.filter(i=>i!==ME);
+        if(shieldCaught.length){
+          shieldCaught.forEach(i=>{addLog('🎯 '+label(i)+emoji(i)+' 탈락!');spawnSmoke(i);});
+          sfx('catch');
+          setTimeout(()=>{shieldCaught.forEach(i=>{G.alive[i]=false;});updateArena();updateMeCard();updateOthers();},120);
+          const anyAlive=G.alive.some((a,i)=>!isHunter(i)&&a&&!shieldCaught.includes(i));
+          if(!anyAlive){G.scores.h++;setTimeout(()=>{clearMoveFX();showResult('hunter');},1400);return;}
+        }
+        setTimeout(()=>{clearMoveFX();updateSkillUI();advanceTurn();},900);
+        return;
+      }
       caught.forEach(i=>{addLog('🎯 '+(i===ME?'나(!!)':label(i)+emoji(i))+' 탈락!');spawnSmoke(i);});
       sfx('catch');flashFx('rgba(255,68,34,.28)');
       const cfx=document.getElementById('cfx');
@@ -1319,6 +1487,14 @@ function advanceTurn(){
     G.scores.r++;setTimeout(()=>showResult('runner'),1200);return;
   }
   G.turn++;G.moves=[null,null,null,null];G.choosePly=0;
+  // 이벤트 해제 (1턴 지속)
+  clearMapEvent();
+  // 스킬 쿨다운 감소
+  if(G.hunterScanCd>0) G.hunterScanCd--;
+  if(G.runnerShieldCd>0) G.runnerShieldCd--;
+  updateSkillUI();
+  // 3턴마다 맵 이벤트 발동
+  if(G.mapEventOn && G.turn%3===0) triggerMapEvent();
   buildReadyBadges();updateTurnBar();
   setTimeout(nextChooser,380);
 }
@@ -1370,7 +1546,21 @@ function showResult(winner){
   const meWon=payout.winners.includes(ME);
   if(meWon){G.streak+=1;G.lossStreak=0;}else{G.lossStreak+=1;G.streak=0;}
   applyMissionProgress(winner);
-  // 연승/연패 배너 표시
+
+  // 시즌 SP 계산 및 적용
+  const spGain=calcSeasonSP(winner,meWon);
+  G.seasonSP+=spGain;
+  addLog('🏅 시즌 SP +'+spGain);
+
+  // 하이라이트 텍스트 생성
+  const hw=document.getElementById('highlightText');
+  if(hw){
+    const role=isHunter(ME)?'🦁헌터':'🏃러너';
+    const result=meWon?'승리':'패배';
+    hw.textContent=role+' '+result+' · '+G.turn+'턴 · '+spGain+'SP 획득 · 연승 '+G.streak+'';
+  }
+
+  // 연승/연패 배너
   const sb=document.getElementById('streakBanner');
   const snum=document.getElementById('streakNum');
   const slbl=document.getElementById('streakLbl');
@@ -1379,24 +1569,24 @@ function showResult(winner){
     if(meWon&&G.streak>=2){
       sb.style.display='flex';sb.className='streak-banner win-streak';
       snum.className='streak-num w';snum.textContent=G.streak+'연승!';
-      slbl.textContent='🔥 연승 보너스 발동!';smsg.textContent='다음 판도 이기면 보너스가 더 커진다!';
+      slbl.textContent='🔥 연승 보너스 발동!';smsg.textContent='다음 판도 이기면 SP 보너스가 더 커진다!';
       sfx('coin');
     }else if(!meWon&&G.lossStreak>=3){
       sb.style.display='flex';sb.className='streak-banner loss-streak';
       snum.className='streak-num l';snum.textContent=G.lossStreak+'연패';
-      slbl.textContent='💙 연패 복구 보너스!';smsg.textContent='다음 판 베팅금의 20% 자동 보전';
+      slbl.textContent='💙 연패 복구 보너스!';smsg.textContent='다음 판 참가 포인트의 20% 자동 보전';
     }else{sb.style.display='none';}
   }
 
   const meRow=payout.rows.find(r=>r.i===ME);
   const bonusText='TURNOVER '+pct(payout.bonusRate)+' · +'+payout.bonusCoins+'P';
-  const feeText='운영수수료 '+payout.feeCoins+'P';
+  const feeText=payout.feeCoins>0?'수수료 '+payout.feeCoins+'P':'';
   document.getElementById('rdesc').textContent=meWon
-    ?'⭐ 내가 이겼다! +'+meRow.net+'P 획득! · '+bonusText+' · '+feeText
-    :'😢 졌다... '+Math.abs(meRow.net)+'P 손실 · '+bonusText+' · '+feeText;
+    ?'⭐ 내가 이겼다! +'+meRow.net+'P · 🏅+'+spGain+'SP · '+bonusText+(feeText?' · '+feeText:'')
+    :'😢 졌다... '+Math.abs(meRow.net)+'P 손실 · 🏅+'+spGain+'SP';
 
   const tb=document.getElementById('ptable');
-  let html=`<div class="pt-head"><div>플레이어</div><div class="right">베팅</div><div class="right">결과</div><div class="right">잔액</div></div>`;
+  let html=`<div class="pt-head"><div>플레이어</div><div class="right">참가P</div><div class="right">결과</div><div class="right">잔액</div></div>`;
   payout.rows.forEach(r=>{
     const isMe=r.i===ME;
     const nm=(isMe?'⭐나':label(r.i))+' '+emoji(r.i);
@@ -1405,10 +1595,11 @@ function showResult(winner){
     const winBadge=r.isW?'<span class="win-tag">WIN</span>':'';
     html+=`<div class="pt-row${isMe?' me-row':''}${r.isW?' win':''}"><div class="pt-cell">${nm} ${roleStr} ${winBadge}</div><div class="pt-cell right">${r.bet}</div><div class="pt-cell right">${netStr}</div><div class="pt-cell right">${r.newBal}</div></div>`;
   });
-  html+=`<div class="pot-row"><span style="color:var(--mu)">💰 총 베팅 팟</span><span style="color:var(--gold)">${payout.grossPot} P</span></div>`;
-  html+=`<div class="pot-row"><span style="color:var(--mu)">🏦 플랫폼 수수료 (${matchFeeRateText()})</span><span style="color:#ff9977">-${payout.feeCoins} P</span></div>`;
+  html+=`<div class="pot-row"><span style="color:var(--mu)">💰 총 참가 포인트</span><span style="color:var(--gold)">${payout.grossPot} P</span></div>`;
+  if(payout.feeCoins>0)html+=`<div class="pot-row"><span style="color:var(--mu)">🏦 운영 기여 (${matchFeeRateText()})</span><span style="color:#ff9977">-${payout.feeCoins} P</span></div>`;
   html+=`<div class="pot-row"><span style="color:var(--mu)">⚡ TURNOVER ${pct(payout.bonusRate)}</span><span style="color:#44cc77">+${payout.bonusCoins} P</span></div>`;
   html+=`<div class="pot-row"><span style="color:var(--mu)">🏆 최종 분배</span><span style="color:var(--gold)">${payout.distributable} P</span></div>`;
+  html+=`<div class="pot-row"><span style="color:var(--mu)">🏅 시즌 SP 획득</span><span style="color:#88ccff">+${spGain} SP</span></div>`;
   if(payout.streakBonus)html+=`<div class="pot-row"><span style="color:var(--mu)">🔥 연승 보너스</span><span style="color:var(--gold)">+${payout.streakBonus} P</span></div>`;
   if(payout.recovBonus)html+=`<div class="pot-row"><span style="color:var(--mu)">💙 연패 복구</span><span style="color:#88ccff">+${payout.recovBonus} P</span></div>`;
   if(payout.winners.length>1)html+=`<div class="pot-row"><span style="color:var(--mu)">👥 1인당</span><span style="color:#44cc77">${payout.share} P</span></div>`;
@@ -1423,10 +1614,14 @@ function rematch(type){
   if(type==='bet'){goTabByName('settings');return;}
   if(type==='swap'){G.hunterIdx=(G.hunterIdx+1)%G.pc;}
   initPos();G.alive=[true,true,true,true];G.moves=[null,null,null,null];G.turn=1;G.choosePly=0;
+  // SKILL + EVENT RESET
+  G.hunterScanCd=0;G.runnerShieldCd=0;G.shieldActive=false;
+  G.currentEvent=null;G.blockedPortal=-1;G.swapMoves=false;G.fogActive=false;G.doubleJumpActive=false;
+  clearEventBanner();
   document.getElementById('cfx').style.display='none';
   buildOthersRow();buildChars();buildReadyBadges();
-  clrLog();addLog('재대결 · 베팅 '+Math.min(G.bet,G.balances[ME])+'코인');
-  showSc('S1');updateProfileUI();updateArena();updateMeCard();updateOthers();updateTurnBar();
+  clrLog();addLog('재대결 · 참가 '+Math.min(G.bet,G.balances[ME])+'P');
+  showSc('S1');updateProfileUI();updateArena();updateMeCard();updateOthers();updateTurnBar();updateSkillUI();
   setTimeout(nextChooser,350);
 }
 
@@ -1510,7 +1705,7 @@ function syncMiniSettings(){
   const roleMap={random:'랜덤',hunter:'헌터',runner:'러너'};
   const diffMap={easy:'쉬움',normal:'보통',hard:'어려움'};
   const mtMap={normal:'일반전', ranked:'랭킹전', tournament:'토너먼트'};
-  grid.innerHTML=`<div class="mini-pill">인원수 ${G.pc}인</div><div class="mini-pill">모드 ${modeMap[G.mode]||G.mode}</div><div class="mini-pill">역할 ${roleMap[G.role]||G.role}</div><div class="mini-pill">턴수 ${G.turns}턴</div><div class="mini-pill">AI ${diffMap[G.diff]||G.diff}</div><div class="mini-pill">베팅 ${G.bet}코인</div><div class="mini-pill">타입 ${mtMap[G.matchType]||G.matchType}</div><div class="mini-pill">수수료 ${matchFeeRateText()}</div>`;
+  grid.innerHTML=`<div class="mini-pill">인원수 ${G.pc}인</div><div class="mini-pill">모드 ${modeMap[G.mode]||G.mode}</div><div class="mini-pill">역할 ${roleMap[G.role]||G.role}</div><div class="mini-pill">턴수 ${G.turns}턴</div><div class="mini-pill">AI ${diffMap[G.diff]||G.diff}</div><div class="mini-pill">참가P ${G.bet}P</div><div class="mini-pill">타입 ${mtMap[G.matchType]||G.matchType}</div><div class="mini-pill">이벤트 ${G.mapEventOn?'ON 🎭':'OFF'}</div>`;
 }
 
 function matchFeeRate(){
@@ -1522,10 +1717,10 @@ function matchFeeRateText(){
 }
 function refreshTopEconomyUI(){
   const p=document.getElementById('topPointChip');
-  const g=document.getElementById('topGemChip');
+  const sp=document.getElementById('topSPChip');
   const s=document.getElementById('topStreakChip');
   if(p) p.textContent='💰 '+G.balances[ME]+' P';
-  if(g) g.textContent='🎟️ 토큰 '+G.gems;
+  if(sp) sp.textContent='🏅 시즌 '+G.seasonSP+' SP';
   if(s) s.textContent='🔥 연승 '+G.streak;
 }
 function claimDailyReward(){
@@ -1557,18 +1752,199 @@ function applyMissionProgress(winner){
   if(winner==='hunter'&&isHunter(ME))G.hunterWins+=1;
   if(winner==='runner'&&!isHunter(ME))G.runnerWins+=1;
   renderMissions('missionList');renderMissions('missionListSM');
+  // KPI 트래킹 로그
+  const kpi={gamesPlayed:G.gamesPlayed,streak:G.streak,seasonSP:G.seasonSP};
+  try{localStorage.setItem('tt_kpi',JSON.stringify(kpi));}catch(e){}
 }
 
 function updateProfileUI(){
   const rankEl=document.getElementById('myRank');
   const pointEl=document.getElementById('myPoint');
+  const spEl=document.getElementById('mySP');
+  const tierEl=document.getElementById('myTier');
   const hEl=document.getElementById('myHunterWins');
   const rEl=document.getElementById('myRunnerWins');
   if(rankEl)rankEl.textContent='#'+(27 - Math.min(10, Math.floor(G.streak/2)));
   if(pointEl)pointEl.textContent=`${G.balances[ME]} P`;
+  if(spEl)spEl.textContent=`${G.seasonSP} SP`;
+  if(tierEl){
+    const tier=getSeasonTier(G.seasonSP);
+    tierEl.innerHTML=`<span class="season-tier ${tier.cls}">${tier.ico} ${tier.label}</span>`;
+  }
   if(hEl)hEl.textContent=`${G.hunterWins}`;
   if(rEl)rEl.textContent=`${G.runnerWins}`;
   refreshTopEconomyUI();
+}
+
+/* ══ SKILL SYSTEM ══ */
+const SKILL_HUNTER_CD = 3; // 헌터 탐지: 3턴 쿨다운
+const SKILL_RUNNER_CD = 4; // 러너 방어막: 4턴 쿨다운
+
+function updateSkillUI(){
+  const isH=isHunter(ME);
+  const hBtn=document.getElementById('hunterSkillBtn');
+  const rBtn=document.getElementById('runnerSkillBtn');
+  const hCd=document.getElementById('hunterSkillCd');
+  const rCd=document.getElementById('runnerSkillCd');
+  const shBadge=document.getElementById('shieldBadge');
+  if(!hBtn||!rBtn) return;
+
+  // 헌터 스킬
+  if(isH){
+    hBtn.disabled=G.hunterScanCd>0||G.choosePly!==ME;
+    hBtn.classList.toggle('skill-ready',G.hunterScanCd===0);
+    hCd.textContent=G.hunterScanCd>0?'⏳'+G.hunterScanCd+'턴':'사용 가능!';
+    rBtn.disabled=true;rBtn.style.opacity='.22';
+  }else{
+    rBtn.disabled=G.runnerShieldCd>0||G.shieldActive||G.choosePly!==ME;
+    rBtn.style.opacity='';
+    rBtn.classList.toggle('skill-ready',G.runnerShieldCd===0&&!G.shieldActive);
+    rCd.textContent=G.shieldActive?'활성중 🛡':G.runnerShieldCd>0?'⏳'+G.runnerShieldCd+'턴':'사용 가능!';
+    if(shBadge)shBadge.style.display=G.shieldActive?'block':'none';
+    hBtn.disabled=true;hBtn.style.opacity='.22';
+  }
+}
+
+function useHunterSkill(){
+  if(!isHunter(ME)||G.hunterScanCd>0) return;
+  G.hunterScanCd=SKILL_HUNTER_CD;
+  G.skillsUsed++;
+  sfx('jump');
+  // 살아있는 러너 중 가장 가까운 위치 힌트 제공
+  const runners=[];
+  for(let i=0;i<G.pc;i++)if(!isHunter(i)&&G.alive[i])runners.push({i,pos:G.pos[i],dist:dist(G.pos[G.hunterIdx],G.pos[i])});
+  runners.sort((a,b)=>a.dist-b.dist);
+  if(runners.length){
+    const nearest=runners[0];
+    addLog('🔍 탐지! 가장 가까운 러너: '+spotName(nearest.pos)+' 근처');
+    // 가장 가까운 러너 포탈을 잠깐 표시
+    flashFx('rgba(255,80,40,.15)');
+    setSbar('🔍 탐지: '+label(nearest.i)+' → '+spotName(nearest.pos)+' 근처!','warn');
+  }
+  updateSkillUI();
+  renderMissions('missionList');renderMissions('missionListSM');
+}
+
+function useRunnerSkill(){
+  if(isHunter(ME)||G.runnerShieldCd>0||G.shieldActive) return;
+  G.shieldActive=true;
+  G.runnerShieldCd=SKILL_RUNNER_CD;
+  G.skillsUsed++;
+  sfx('ready');
+  addLog('🛡 방어막 활성! 다음 잡히기 무효 (1회)');
+  flashFx('rgba(68,136,255,.2)');
+  setSbar('🛡 방어막 활성! 이번 공격은 막힙니다.','ok');
+  updateSkillUI();
+  renderMissions('missionList');renderMissions('missionListSM');
+}
+
+/* ══ MAP EVENT SYSTEM ══ */
+const MAP_EVENTS=[
+  {id:'block',ico:'🚫',name:'포탈 봉쇄!',desc:'랜덤 포탈 1개 이동 불가',color:'#ff9977'},
+  {id:'swap', ico:'🔀',name:'포탈 교란!',desc:'GO/BACK 방향 반전',color:'#dd99ff'},
+  {id:'fog',  ico:'🌫',name:'안개 턴!',  desc:'상대 위치 숨김 (로그 제한)',color:'#aabbdd'},
+  {id:'boost',ico:'⚡',name:'에너지 서지!',desc:'이번 턴 JUMP = 2칸 이동',color:'#ffcc44'},
+];
+
+function triggerMapEvent(){
+  const ev=MAP_EVENTS[Math.floor(Math.random()*MAP_EVENTS.length)];
+  G.currentEvent=ev.id;
+  G.eventsExperienced++;
+  if(ev.id==='block'){
+    G.blockedPortal=Math.floor(Math.random()*4);
+    addLog('🗺 이벤트: '+ev.name+' ['+spotName(G.blockedPortal)+']봉쇄');
+  }else if(ev.id==='swap'){
+    G.swapMoves=true;
+    addLog('🗺 이벤트: '+ev.name);
+  }else if(ev.id==='fog'){
+    G.fogActive=true;
+    addLog('🗺 이벤트: '+ev.name);
+  }else if(ev.id==='boost'){
+    G.doubleJumpActive=true;
+    addLog('🗺 이벤트: '+ev.name);
+  }
+  beep(550,.12,'sine',.1);setTimeout(()=>beep(660,.15,'sine',.1),130);
+  showEventBanner(ev);
+  renderMissions('missionList');renderMissions('missionListSM');
+}
+
+function clearMapEvent(){
+  G.currentEvent=null;G.blockedPortal=-1;G.swapMoves=false;G.fogActive=false;G.doubleJumpActive=false;
+  clearEventBanner();
+}
+
+function showEventBanner(ev){
+  const b=document.getElementById('eventBanner');if(!b)return;
+  document.getElementById('eventIco').textContent=ev.ico;
+  document.getElementById('eventName').textContent=ev.name;
+  const desc=ev.id==='block'?ev.desc+' ['+spotName(G.blockedPortal)+']':ev.desc;
+  document.getElementById('eventDesc').textContent=desc;
+  document.getElementById('eventTurns').textContent='1턴';
+  b.style.borderColor=ev.color;
+  b.querySelector('.event-name').style.color=ev.color;
+  b.classList.add('on');
+}
+
+function clearEventBanner(){
+  const b=document.getElementById('eventBanner');if(b)b.classList.remove('on');
+}
+
+/* ══ BLUFF ROW ══ */
+function showBluffHints(){
+  const row=document.getElementById('bluffRow');if(!row)return;
+  row.innerHTML='';
+  for(let i=0;i<G.pc;i++){
+    if(i===ME||(!isHunter(i)&&!G.alive[i]))continue;
+    const fakeActs=['STAY','GO','BACK','JUMP'];
+    const fake=fakeActs[Math.floor(Math.random()*4)];
+    const d=document.createElement('span');
+    d.className='bluff-chip fake';
+    d.title='이건 페이크일 수 있습니다!';
+    d.textContent=(i===G.hunterIdx?'🦁':'🏃')+label(i)+': ?'+fake+'?';
+    row.appendChild(d);
+  }
+}
+function clearBluffRow(){
+  const row=document.getElementById('bluffRow');if(row)row.innerHTML='';
+}
+
+/* ══ SEASON SP ══ */
+function calcSeasonSP(winner,meWon){
+  let sp=10; // 기본 참여 포인트
+  if(meWon) sp+=30;
+  else sp+=5;
+  // 역할별 보너스
+  if(meWon&&isHunter(ME)) sp+=10;
+  if(meWon&&!isHunter(ME)) sp+=8;
+  // 연승 보너스
+  if(meWon&&G.streak>=2) sp+=G.streak*5;
+  // 조기 종료 보너스 (헌터 조기승)
+  if(winner==='hunter'&&G.turn<G.turns) sp+=5;
+  // 이벤트 턴 경험 보너스
+  if(G.eventsExperienced>0) sp+=3;
+  return sp;
+}
+
+function getSeasonTier(sp){
+  if(sp>=500) return {label:'다이아',cls:'tier-diamond',ico:'💎'};
+  if(sp>=200) return {label:'골드',cls:'tier-gold',ico:'🥇'};
+  if(sp>=80)  return {label:'실버',cls:'tier-silver',ico:'🥈'};
+  return {label:'브론즈',cls:'tier-bronze',ico:'🥉'};
+}
+
+/* ══ HIGHLIGHT SHARE ══ */
+function shareHighlight(){
+  const role=isHunter(ME)?'🦁헌터':'🏃러너';
+  const hw=document.getElementById('highlightText');
+  const txt='[턴태그 술래잡기] '+role+' 플레이! '+(hw?hw.textContent:'')+'  같이 해보자! 🎮';
+  if(navigator.share){navigator.share({title:'턴태그 술래잡기',text:txt}).catch(()=>{});}
+  else{if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(()=>{});showModal('📤','복사 완료!','','텍스트가 복사됐습니다! 카카오/SNS에 붙여넣기하세요 🎉');}
+}
+
+/* ══ SEASON INFO ══ */
+function showSeasonInfo(){
+  const tier=getSeasonTier(G.seasonSP);
+  showModal(tier.ico,'시즌 현황','🏅 '+G.seasonSP+' SP','현재 티어: '+tier.label+'\n게임 참여·승리할수록 SP가 쌓입니다!\n다음 티어까지 도전해보세요 💪');
 }
 
 updatePotDisplay();
